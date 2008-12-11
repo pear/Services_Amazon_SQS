@@ -41,16 +41,45 @@ $release_notes   =
 
 $description =
     "This package provides an object-oriented interface to the Amazon Simple " .
-    "Queue Service. Included are client libraries and a command-line " .
+    "Queue Service (SQS). Included are client libraries and a command-line " .
     "script for managing queues. You will need a set of web-service keys " .
     "from Amazon Web Services that have SQS enabled. You can sign up for an " .
     "account at: " .
     "https://aws-portal.amazon.com/gp/aws/developer/registration/index.html." .
     "\n\n" .
-    "Note: Although this package has no cost, Amazon's web services are not " .
-    "free to use. You will be billed by Amazon for the use of the SQS." .
+    "Note: Although this package has no cost, Amazon's Web services are not " .
+    "free to use. You will be billed by Amazon for your use of SQS." .
     "\n\n" .
-    "This package requires PHP 5.2.1.";
+    "This package is derived with permission from the simple-aws package " .
+    "available at http://code.google.com/p/simple-aws/ and written by Mike " .
+    "Brittain." .
+    "\n\n" .
+    "This package requires PHP 5.2.1." .
+    "\n\n" .
+    "There are two main ways to use this package. Firstly, it provides an " .
+    "API that may be used to manage queues, and to add and remove messages " .
+    "from queues in PHP scripts. The Services_Amazon_SQS_QueueManager and " .
+    "Services_Amazon_SQS_Queue classes provide these methods." .
+    "\n\n" .
+    "Secondly, a command-line application for managing SQS queues is " .
+    "provided. This is installed by PEAR as `sqs'. Running this command " .
+    "produces the following output:" .
+    "\n\n" .
+    "A command-line interface to Amazon's Simple Queue Service." .
+    "\n\n" .
+    "Usage:\n" .
+    " sqs [options] command [args]" .
+    "\n\n" .
+    "Commands:\n" .
+    " create Creates a new queue with the specified name.\n" .
+    " delete Deletes an existing queue by the specified URI.\n" .
+    " list Lists avaiable queues.\n" .
+    " version Displays version information." .
+    "\n\n" .
+    "Options:\n" .
+    " -c, --config=file Find configuration in `file'." .
+    "\n\n" .
+    "Type `sqs help <command>' to get the help for the specified command.";
 
 $package = new PEAR_PackageFileManager2();
 
@@ -84,7 +113,7 @@ $package->setOptions(array(
 ));
 
 $package->setPackage('Services_Amazon_SQS');
-$package->setSummary('Amazon Simple Queue Service PHP library');
+$package->setSummary('PHP API and tools for Amazon SQS');
 $package->setDescription($description);
 $package->setChannel('pear.php.net');
 $package->setPackageType('php');
