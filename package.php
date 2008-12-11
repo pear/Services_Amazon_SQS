@@ -37,7 +37,7 @@ PEAR::setErrorHandling(PEAR_ERROR_DIE);
 $release_version = '0.0.10';
 $release_state   = 'alpha';
 $release_notes   =
-    "Initial PEAR proposal.";
+    "First PEAR release.";
 
 $description =
     "This package provides an object-oriented interface to the Amazon Simple " .
@@ -55,7 +55,7 @@ $description =
 $package = new PEAR_PackageFileManager2();
 
 $package->setOptions(array(
-    'filelistgenerator'       => 'file',
+    'filelistgenerator'       => 'cvs',
     'simpleoutput'            => true,
     'baseinstalldir'          => '/',
     'packagedirectory'        => './',
@@ -73,12 +73,7 @@ $package->setOptions(array(
     ),
     'ignore'                  => array(
         'package.php',
-        'package.xml',
-        'build.sh',
-        'push.sh',
-        'sync.sh',
-        '*.tgz',
-        'config.php'
+        '*.tgz'
     ),
     'installexceptions'       => array(
         'scripts/sqs'         => '/',
@@ -99,7 +94,7 @@ $package->setLicense('Apache License 2.0',
 $package->setNotes($release_notes);
 $package->setReleaseVersion($release_version);
 $package->setReleaseStability($release_state);
-$package->setAPIVersion('0.0.6');
+$package->setAPIVersion('0.0.10');
 $package->setAPIStability('alpha');
 
 $package->addMaintainer('lead', 'gauthierm', 'Mike Gauthier',
