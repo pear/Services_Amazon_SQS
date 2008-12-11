@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<package packagerversion="1.7.2" version="2.0" xmlns="http://pear.php.net/dtd/package-2.0" xmlns:tasks="http://pear.php.net/dtd/tasks-1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://pear.php.net/dtd/tasks-1.0
+    http://pear.php.net/dtd/tasks-1.0.xsd
+    http://pear.php.net/dtd/package-2.0
+    http://pear.php.net/dtd/package-2.0.xsd">
+ <name>Services_Amazon_SQS</name>
+ <channel>pear.php.net</channel>
+ <summary>PHP API and tools for Amazon SQS</summary>
+ <description>This package provides an object-oriented interface to the Amazon Simple Queue Service (SQS). Included are client libraries and a command-line script for managing queues. You will need a set of web-service keys from Amazon Web Services that have SQS enabled. You can sign up for an account at: https://aws-portal.amazon.com/gp/aws/developer/registration/index.html.
+
+Note: Although this package has no cost, Amazon&apos;s Web services are not free to use. You will be billed by Amazon for your use of SQS.
+
+This package is derived with permission from the simple-aws package available at http://code.google.com/p/simple-aws/ and written by Mike Brittain.
+
+This package requires PHP 5.2.1.
+
+There are two main ways to use this package. Firstly, it provides an API that may be used to manage queues, and to add and remove messages from queues in PHP scripts. The Services_Amazon_SQS_QueueManager and Services_Amazon_SQS_Queue classes provide these methods.
+
+Secondly, a command-line application for managing SQS queues is provided. This is installed by PEAR as `sqs&apos;. Running this command produces the following output:
+
+A command-line interface to Amazon&apos;s Simple Queue Service.
+
+Usage:
+ sqs [options] command [args]
+
+Commands:
+ create Creates a new queue with the specified name.
+ delete Deletes an existing queue by the specified URI.
+ list Lists avaiable queues.
+ version Displays version information.
+
+Options:
+ -c, --config=file Find configuration in `file&apos;.
+
+Type `sqs help &lt;command&gt;&apos; to get the help for the specified command.</description>
+ <lead>
+  <name>Mike Gauthier</name>
+  <user>gauthierm</user>
+  <email>mike@silverorange.com</email>
+  <active>yes</active>
+ </lead>
+ <lead>
+  <name>Mike Brittain</name>
+  <user>mikebrittain</user>
+  <email>mike@mikebrittain.com</email>
+  <active>yes</active>
+ </lead>
+ <date>2008-12-11</date>
+ <time>12:00:07</time>
+ <version>
+  <release>0.0.10</release>
+  <api>0.0.10</api>
+ </version>
+ <stability>
+  <release>alpha</release>
+  <api>alpha</api>
+ </stability>
+ <license uri="http://www.apache.org/licenses/LICENSE-2.0">Apache License 2.0</license>
+ <notes>First PEAR release.</notes>
+ <contents>
+  <dir baseinstalldir="/" name="/">
+   <dir name="cfg">
+    <file baseinstalldir="/" name="sqs-win.ini" role="cfg">
+     <tasks:windowseol />
+    </file>
+    <file baseinstalldir="/" name="sqs.ini" role="cfg" />
+   </dir> <!-- /cfg -->
+   <dir name="scripts">
+    <file baseinstalldir="/" name="sqs" role="script">
+     <tasks:replace from="@php-bin@" to="php_bin" type="pear-config" />
+    </file>
+    <file baseinstalldir="/" name="sqs.bat" role="script">
+     <tasks:replace from="@php-bin@" to="php_bin" type="pear-config" />
+     <tasks:replace from="@bin-dir@" to="bin_dir" type="pear-config" />
+     <tasks:replace from="@php-dir@" to="php_dir" type="pear-config" />
+     <tasks:windowseol />
+    </file>
+   </dir> <!-- /scripts -->
+   <dir name="Services">
+    <dir name="Amazon">
+     <dir name="SQS">
+      <file baseinstalldir="/" name="Account.php" role="php" />
+      <file baseinstalldir="/" name="CLI.php" role="php" />
+      <file baseinstalldir="/" name="Exceptions.php" role="php" />
+      <file baseinstalldir="/" name="Queue.php" role="php" />
+      <file baseinstalldir="/" name="QueueManager.php" role="php" />
+      <file baseinstalldir="/" name="Response.php" role="php" />
+     </dir> <!-- /Services/Amazon/SQS -->
+     <file baseinstalldir="/" name="SQS.php" role="php" />
+    </dir> <!-- /Services/Amazon -->
+   </dir> <!-- /Services -->
+   <dir name="tests">
+    <file baseinstalldir="/" name="AllTests.php" role="test" />
+    <file baseinstalldir="/" name="config.php" role="test" />
+    <file baseinstalldir="/" name="config.php.dist" role="test" />
+    <file baseinstalldir="/" name="TestCase.php" role="test" />
+   </dir> <!-- /tests -->
+  </dir> <!-- / -->
+ </contents>
+ <dependencies>
+  <required>
+   <php>
+    <min>5.2.1</min>
+   </php>
+   <pearinstaller>
+    <min>1.7.0</min>
+   </pearinstaller>
+   <package>
+    <name>PEAR</name>
+    <channel>pear.php.net</channel>
+   </package>
+   <package>
+    <name>Console_Getopt</name>
+    <channel>pear.php.net</channel>
+   </package>
+   <package>
+    <name>Crypt_HMAC2</name>
+    <channel>pear.php.net</channel>
+    <min>0.2.1</min>
+   </package>
+   <package>
+    <name>HTTP_Request2</name>
+    <channel>pear.php.net</channel>
+    <min>0.1.0</min>
+   </package>
+  </required>
+ </dependencies>
+ <phprelease>
+  <installconditions>
+   <os>
+    <name>windows</name>
+   </os>
+  </installconditions>
+  <filelist>
+   <install as="sqs" name="scripts/sqs" />
+   <install as="sqs.bat" name="scripts/sqs.bat" />
+   <install as="sqs.ini" name="cfg/sqs-win.ini" />
+   <ignore name="cfg/sqs.ini" />
+  </filelist>
+ </phprelease>
+ <phprelease>
+  <filelist>
+   <install as="sqs" name="scripts/sqs" />
+   <install as="sqs.ini" name="cfg/sqs.ini" />
+   <ignore name="scripts/sqs.bat" />
+   <ignore name="cfg/sqs-win.ini" />
+  </filelist>
+ </phprelease>
+ <changelog>
+  <release>
+   <version>
+    <release>0.0.10</release>
+    <api>0.0.10</api>
+   </version>
+   <stability>
+    <release>alpha</release>
+    <api>alpha</api>
+   </stability>
+   <date>2008-12-11</date>
+   <license uri="http://www.apache.org/licenses/LICENSE-2.0">Apache License 2.0</license>
+   <notes>First PEAR release.</notes>
+  </release>
+ </changelog>
+</package>
