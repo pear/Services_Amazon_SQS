@@ -34,7 +34,10 @@
 require_once 'PEAR/PackageFileManager2.php';
 PEAR::setErrorHandling(PEAR_ERROR_DIE);
 
-$release_version = '0.0.10';
+$api_version     = '0.1.0';
+$api_state       = 'alpha';
+
+$release_version = '0.1.0';
 $release_state   = 'alpha';
 $release_notes   =
     "First PEAR release.";
@@ -123,8 +126,8 @@ $package->setLicense('Apache License 2.0',
 $package->setNotes($release_notes);
 $package->setReleaseVersion($release_version);
 $package->setReleaseStability($release_state);
-$package->setAPIVersion('0.0.10');
-$package->setAPIStability('alpha');
+$package->setAPIVersion($api_version);
+$package->setAPIStability($api_state);
 
 $package->addMaintainer('lead', 'gauthierm', 'Mike Gauthier',
     'mike@silverorange.com');
@@ -144,16 +147,16 @@ $package->addReplacement('scripts/sqs.bat', 'pear-config',
 $package->addReplacement('scripts/sqs.bat', 'pear-config',
     '@php-dir@', 'php_dir');
 
-$package->addReplacement('Amazon/SQS/CLI.php', 'package-info',
+$package->addReplacement('Services/Amazon/SQS/CLI.php', 'package-info',
     '@package-version@', 'version');
 
-$package->addReplacement('Amazon/SQS/CLI.php', 'package-info',
+$package->addReplacement('Services/Amazon/SQS/CLI.php', 'package-info',
     '@package-name@', 'name');
 
-$package->addReplacement('Amazon/SQS/Client.php', 'package-info',
+$package->addReplacement('Services/Amazon/SQS/Client.php', 'package-info',
     '@api-version@', 'api-version');
 
-$package->addReplacement('Amazon/SQS/Client.php', 'package-info',
+$package->addReplacement('Services/Amazon/SQS/Client.php', 'package-info',
     '@name@', 'name');
 
 $package->addWindowsEol('scripts/sqs.bat');

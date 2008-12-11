@@ -46,10 +46,10 @@ Type `sqs help &lt;command&gt;&apos; to get the help for the specified command.<
   <active>yes</active>
  </lead>
  <date>2008-12-11</date>
- <time>12:00:07</time>
+ <time>12:06:25</time>
  <version>
-  <release>0.0.10</release>
-  <api>0.0.10</api>
+  <release>0.1.0</release>
+  <api>0.1.0</api>
  </version>
  <stability>
   <release>alpha</release>
@@ -80,7 +80,10 @@ Type `sqs help &lt;command&gt;&apos; to get the help for the specified command.<
     <dir name="Amazon">
      <dir name="SQS">
       <file baseinstalldir="/" name="Account.php" role="php" />
-      <file baseinstalldir="/" name="CLI.php" role="php" />
+      <file baseinstalldir="/" name="CLI.php" role="php">
+       <tasks:replace from="@package-version@" to="version" type="package-info" />
+       <tasks:replace from="@package-name@" to="name" type="package-info" />
+      </file>
       <file baseinstalldir="/" name="Exceptions.php" role="php" />
       <file baseinstalldir="/" name="Queue.php" role="php" />
       <file baseinstalldir="/" name="QueueManager.php" role="php" />
@@ -149,8 +152,8 @@ Type `sqs help &lt;command&gt;&apos; to get the help for the specified command.<
  <changelog>
   <release>
    <version>
-    <release>0.0.10</release>
-    <api>0.0.10</api>
+    <release>0.1.0</release>
+    <api>0.1.0</api>
    </version>
    <stability>
     <release>alpha</release>
