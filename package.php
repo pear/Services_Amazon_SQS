@@ -34,13 +34,14 @@
 require_once 'PEAR/PackageFileManager2.php';
 PEAR::setErrorHandling(PEAR_ERROR_DIE);
 
-$api_version     = '0.1.0';
+$api_version     = '0.2.0';
 $api_state       = 'alpha';
 
-$release_version = '0.1.0';
+$release_version = '0.2.0';
 $release_state   = 'alpha';
 $release_notes   =
-    "First PEAR release.";
+    "Second PEAR release. Updated to use Amazon Signature Version 2. See " .
+    "http://developer.amazonwebservices.com/connect/entry.jspa?externalID=1928";
 
 $description =
     "This package provides an object-oriented interface to the Amazon Simple " .
@@ -153,10 +154,10 @@ $package->addReplacement('Services/Amazon/SQS/CLI.php', 'package-info',
 $package->addReplacement('Services/Amazon/SQS/CLI.php', 'package-info',
     '@package-name@', 'name');
 
-$package->addReplacement('Services/Amazon/SQS/Client.php', 'package-info',
+$package->addReplacement('Services/Amazon/SQS.php', 'package-info',
     '@api-version@', 'api-version');
 
-$package->addReplacement('Services/Amazon/SQS/Client.php', 'package-info',
+$package->addReplacement('Services/Amazon/SQS.php', 'package-info',
     '@name@', 'name');
 
 $package->addWindowsEol('scripts/sqs.bat');
@@ -172,6 +173,9 @@ $package->addPackageDepWithChannel('required', 'Console_Getopt',
 
 $package->addPackageDepWithChannel('required', 'Crypt_HMAC2',
     'pear.php.net', '0.2.1');
+
+$package->addPackageDepWithChannel('required', 'Net_URL2',
+    'pear.php.net', '0.2.0');
 
 $package->addPackageDepWithChannel('required', 'HTTP_Request2',
     'pear.php.net', '0.1.0');

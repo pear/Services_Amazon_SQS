@@ -66,6 +66,11 @@ require_once 'Crypt/HMAC2.php';
 require_once 'HTTP/Request2.php';
 
 /**
+ * Used for building the request signature.
+ */
+require_once 'Net/URL2.php';
+
+/**
  * Abstract base class for interfacing with Amazon Simple Queue Service (SQS)
  * queues
  *
@@ -98,9 +103,11 @@ abstract class Services_Amazon_SQS
     const SQS_API_VERSION = '2008-01-01';
 
     /**
-     * Legacy parameter required by SQS.
+     * The signature version used by Services_Amazon_SQS.
+     *
+     * @see http://developer.amazonwebservices.com/connect/entry.jspa?externalID=1928
      */
-    const SQS_SIGNATURE_VERSION = '1';
+    const SQS_SIGNATURE_VERSION = '2';
 
     /**
      * Period after which HTTP requests will timeout in seconds.
@@ -189,78 +196,6 @@ abstract class Services_Amazon_SQS
     }
 
     // }}}
-    // {{{ addRequiredParameters()
-
-    /**
-     * Adds required authentication and version parameters to an array of
-     * parameters
-     *
-     * The required parameters are:
-     * - AWSAccessKey
-     * - SignatureVersion
-     * - Timestamp
-     * - Version and
-     * - Signature
-     *
-     * If a required parameter is already set in the <tt>$parameters</tt> array,
-     * it is not overwritten.
-     *
-     * @param array $parameters the array to which to add the required
-     *                          parameters.
-     *
-     * @return void
-     */
-    protected function addRequiredParameters(array $parameters)
-    {
-        $parameters['AWSAccessKeyId']   = $this->account->getAccessKey();
-        $parameters['SignatureVersion'] = self::SQS_SIGNATURE_VERSION;
-        $parameters['Timestamp']        = $this->_getFormattedTimestamp();
-        $parameters['Version']          = self::SQS_API_VERSION;
-        $parameters['Signature']        = $this->signParameters($parameters,
-                                          $this->account->getSecretAccessKey());
-
-        return $parameters;
-    }
-
-    // }}}
-    // {{{ signParameters()
-
-    /**
-     * Computes the RFC 2104-compliant HMAC signature for request parameters
-     *
-     * This implements the Amazon Web Services signature, as per the following
-     * specification:
-     *
-     * 1. Sort all request parameters (including <tt>SignatureVersion</tt> and
-     *    excluding <tt>Signature</tt>, the value of which is being created),
-     *    ignoring case.
-     *
-     * 2. Iterate over the sorted list and append the parameter name (in its
-     *    original case) and then its value. Do not URL-encode the parameter
-     *    values before constructing this string. Do not use any separator
-     *    characters when appending strings.
-     *
-     * @param array  $parameters the parameters for which to get the signature.
-     * @param string $secretKey  the secret key to use to sign the parameters.
-     *
-     * @return string the signature to the specified parameters. Use this value
-     *                for the <tt>Signature</tt> parameter.
-     */
-    protected function signParameters(array $parameters, $secretKey)
-    {
-        $data = '';
-
-        uksort($parameters, 'strcasecmp');
-        unset($parameters['Signature']);
-
-        foreach ($parameters as $key => $value) {
-            $data .= $key . $value;
-        }
-
-        return $this->_sign($data, $secretKey);
-    }
-
-    // }}}
     // {{{ sendRequest()
 
     /**
@@ -291,6 +226,9 @@ abstract class Services_Amazon_SQS
         $url = ($queueUrl) ? $queueUrl : 'http://' . self::SQS_SERVER . '/';
 
         $params = $this->addRequiredParameters($params);
+
+        $secretKey = $this->account->getSecretAccessKey();
+        $params    = $this->signParameters($params, $secretKey, $url);
 
         try {
             /*
@@ -326,6 +264,94 @@ abstract class Services_Amazon_SQS
     }
 
     // }}}
+    // {{{ addRequiredParameters()
+
+    /**
+     * Adds required authentication and version parameters to an array of
+     * parameters
+     *
+     * The required parameters are:
+     *
+     * - <tt>AWSAccessKey</tt>,
+     * - <tt>Timestamp</tt>, and
+     * - <tt>Version</tt>.
+     *
+     * If a required parameter is already set in the <tt>$parameters</tt> array,
+     * it is not overwritten.
+     *
+     * @param array $parameters the array to which to add the required
+     *                          parameters.
+     *
+     * @return array the parameters array, which includes the required
+     *               parameters.
+     */
+    protected function addRequiredParameters(array $parameters)
+    {
+        if (!array_key_exists('AWSAccessKeyId', $parameters)) {
+            $parameters['AWSAccessKeyId'] = $this->account->getAccessKey();
+        }
+
+        if (!array_key_exists('Timestamp', $parameters)) {
+            $parameters['Timestamp'] = $this->_getFormattedTimestamp();
+        }
+
+        if (!array_key_exists('Version', $parameters)) {
+            $parameters['Version'] = self::SQS_API_VERSION;
+        }
+
+        return $parameters;
+    }
+
+    // }}}
+    // {{{ signParameters()
+
+    /**
+     * Signs an array of request parameters using the Amazon Web Services
+     * Signature Version 2 signing method
+     *
+     * @param array  $parameters the parameters for which to get the signature.
+     * @param string $secretKey  the secret key to use to sign the parameters.
+     * @param string $url        the request URI.
+     *
+     * @return array the signed parameters array. This method will add or set
+     *               the keys <tt>SignatureVersion</tt>,
+     *               <tt>SignatureMethod</tt> and <tt>Signature</tt>.
+     *
+     * @see http://s3.amazonaws.com/awsdocs/SQS/20080101/sqs-dg-20080101.pdf
+     */
+    protected function signParameters(array $parameters, $secretKey, $url)
+    {
+        unset($parameters['Signature']);
+        unset($parameters['SignatureVersion']);
+        unset($parameters['SignatureMethod']);
+
+        // figure out what hmac algorithm to use
+        try {
+            // try first to use SHA-256
+            $hmac   = new Crypt_HMAC2($secretKey, 'SHA256');
+            $method = 'HmacSHA256';
+        } catch (Crypt_HMAC2_Exception $e) {
+            // if SHA-256 is not available, use SHA-1
+            $hmac   = new Crypt_HMAC2($secretKey, 'SHA1');
+            $method = 'HmacSHA1';
+        }
+
+        $parameters['SignatureVersion'] = self::SQS_SIGNATURE_VERSION;
+        $parameters['SignatureMethod']  = $method;
+
+        $data = $this->_getStringToSign($parameters, $url);
+
+        $signature = $hmac->hash($data, Crypt_HMAC2::BINARY);
+
+        // Amazon wants the signature value base64-encoded
+        $signature = base64_encode($signature);
+
+        $parameters['Signature'] = $signature;
+
+        return $parameters;
+    }
+
+    // }}}
     // {{{ isValidVisibilityTimeout()
 
     /**
@@ -349,25 +375,99 @@ abstract class Services_Amazon_SQS
     }
 
     // }}}
-    // {{{ _sign()
+    // {{{ _getStringToSign()
 
     /**
-     * Computes the RFC 2104-compliant HMAC signature for a string
+     * Gets the string to sign for Amazon Signature Version 2
      *
-     * @param string $data      the data for which to compute the hash.
-     * @param string $secretKey the secret key used to sign the data.
+     * @param array  $parameters the request parameters.
+     * @param string $url        the request URI.
      *
-     * @return string the signed data.
+     * @return string the string to sign.
+     *
+     * @see http://s3.amazonaws.com/awsdocs/SQS/20080101/sqs-dg-20080101.pdf
      */
-    private function _sign($data, $secretKey)
+    private function _getStringToSign(array $parameters, $url)
     {
-        $hmac = new Crypt_HMAC2($secretKey, 'SHA1');
+        // sort parameters by key using natural byte-ordering
+        uksort($parameters, array(__CLASS__, '_byteCompare'));
 
-        // get raw hash
-        $hash = $hmac->hash($data, Crypt_HMAC2::BINARY);
+        // encode parameters
+        $encodedParameters = '';
+        foreach ($parameters as $key => $value) {
+            $encodedParameters .= sprintf('&%s=%s',
+                $this->_urlencode($key),
+                $this->_urlencode($value));
+        }
 
-        // Amazon wants the value base64-encoded
-        return base64_encode($hash);
+        // remove leading ampersand
+        $encodedParameters = substr($encodedParameters, 1);
+
+        // get host and path
+        $url = new Net_URL2($url);
+
+        $method = 'POST';
+        $host   = $url->getHost();
+        $path   = $url->getPath();
+        $path   = ($path === '') ? '/' : $path;
+
+        // build the string to sign
+        $data = sprintf("%s\n%s\n%s\n%s",
+            $method,
+            strtolower($host),
+            $path,
+            $encodedParameters);
+
+        return $data;
+    }
+
+    // }}}
+    // {{{ _urlencode()
+
+    /**
+     * URL-encodes a string according to RFC 3986
+     *
+     * PHP's rawurlencode() uses RFC 1738. Amazon's signatures require the use
+     * of the more recent RFC 3986. The main differece from the perspective of
+     * URL encoding is that the tilde (<tt>~</tt>) is now unreserved. As of PHP
+     * 5.3, the rawurlencode() function will use RFC 3986.
+     *
+     * @param string $string the string to encode.
+     *
+     * @return the string URL encoded according to RFC 3986.
+     *
+     * @see http://www.ietf.org/rfc/rfc3986.txt (Chapter 2)
+     */
+    private function _urlencode($string)
+    {
+        $encoded = rawurlencode($string);
+
+        // This str_replace() shouldn't have any affect on PHP 5.3 and is
+        // probably faster than the alternative version_compare() call.
+        $encoded = str_replace('%7E', '~', $encoded);
+
+        return $encoded;
+    }
+
+    // }}}
+    // {{{ _byteCompare()
+
+    /**
+     * Compares two strings using natural byte-ordering
+     *
+     * This should be compatible with PHP6 as it uses a binary cast before
+     * comparing.
+     *
+     * @param string $string1 the first string.
+     * @param string $string2 the second string.
+     *
+     * @return integer -1 if the first string is less than the second string,
+     *                 1 if the first string is greater than the second string
+     *                 or 0 if the strings are equal.
+     */
+    private static function _byteCompare($string1, $string2)
+    {
+        return strcmp((binary)$string1, (binary)$string2);
     }
 
     // }}}
