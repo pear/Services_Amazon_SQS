@@ -136,7 +136,7 @@ class Services_Amazon_SQS_QueueManager extends Services_Amazon_SQS
         if (!$this->isValidQueueName($name)) {
             throw new Services_Amazon_SQS_InvalidQueueException('The queue ' .
                 'name "' . $name . '" is not a valid queue name. Queue names ' .
-                'must be 1-80 characetrs long and must consist only of ' .
+                'must be 1-80 characters long and must consist only of ' .
                 'alphanumeric characters, dashes or underscores.', 0, $name);
         }
 
