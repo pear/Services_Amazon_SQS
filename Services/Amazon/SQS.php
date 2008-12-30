@@ -201,7 +201,7 @@ abstract class Services_Amazon_SQS
     /**
      * Sends a HTTP request to the queue service using cURL
      *
-     * The supplied <tt>$params</tt> array should contain only the specific
+     * The supplied <kbd>$params</kbd> array should contain only the specific
      * parameters for the request type and should not include account,
      * signature, or timestamp related parameters. These parameters are added
      * automatically.
@@ -272,12 +272,12 @@ abstract class Services_Amazon_SQS
      *
      * The required parameters are:
      *
-     * - <tt>AWSAccessKey</tt>,
-     * - <tt>Timestamp</tt>, and
-     * - <tt>Version</tt>.
+     * - <kbd>AWSAccessKey</kbd>,
+     * - <kbd>Timestamp</kbd>, and
+     * - <kbd>Version</kbd>.
      *
-     * If a required parameter is already set in the <tt>$parameters</tt> array,
-     * it is not overwritten.
+     * If a required parameter is already set in the <kbd>$parameters</kbd>
+     * array, it is not overwritten.
      *
      * @param array $parameters the array to which to add the required
      *                          parameters.
@@ -314,8 +314,8 @@ abstract class Services_Amazon_SQS
      * @param string $url        the request URI.
      *
      * @return array the signed parameters array. This method will add or set
-     *               the keys <tt>SignatureVersion</tt>,
-     *               <tt>SignatureMethod</tt> and <tt>Signature</tt>.
+     *               the keys <kbd>SignatureVersion</kbd>,
+     *               <kbd>SignatureMethod</kbd> and <kbd>Signature</kbd>.
      *
      * @see http://s3.amazonaws.com/awsdocs/SQS/20080101/sqs-dg-20080101.pdf
      */
@@ -429,8 +429,8 @@ abstract class Services_Amazon_SQS
      *
      * PHP's rawurlencode() uses RFC 1738. Amazon's signatures require the use
      * of the more recent RFC 3986. The main differece from the perspective of
-     * URL encoding is that the tilde (<tt>~</tt>) is now unreserved. As of PHP
-     * 5.3, the rawurlencode() function will use RFC 3986.
+     * URL encoding is that the tilde (<kbd>~</kbd>) is now unreserved. As of
+     * PHP 5.3, the rawurlencode() function will use RFC 3986.
      *
      * @param string $string the string to encode.
      *

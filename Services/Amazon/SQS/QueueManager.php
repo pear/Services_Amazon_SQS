@@ -124,7 +124,7 @@ class Services_Amazon_SQS_QueueManager extends Services_Amazon_SQS
      *         differs from the value on the existing queue.
      *
      * @throws Services_Amazon_SQS_InvalidTimeoutException if the provided
-     *         <tt>$timeout</tt> is not in the valid range.
+     *         <kbd>$timeout</kbd> is not in the valid range.
      *
      * @throws Services_Amazon_SQS_ErrorException if one or more errors are
      *         returned by Amazon.

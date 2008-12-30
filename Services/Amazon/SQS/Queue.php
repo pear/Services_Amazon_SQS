@@ -223,12 +223,12 @@ class Services_Amazon_SQS_Queue extends Services_Amazon_SQS
      * @return array an array containing one or more retrieved messages. Each
      *               message in the returned array is represented as an
      *               associative array with the following keys:
-     *               - <tt>id</tt>     - the message id.
-     *               - <tt>body</tt>   - the body of the message.
-     *               - <tt>handle</tt> - the receipt handle of the message.
+     *               - <kbd>id</kbd>     - the message id.
+     *               - <kbd>body</kbd>   - the body of the message.
+     *               - <kbd>handle</kbd> - the receipt handle of the message.
      *
      * @throws Services_Amazon_SQS_InvalidTimeoutException if the provided
-     *         <tt>$timeout</tt> is not in the valid range.
+     *         <kbd>$timeout</kbd> is not in the valid range.
      *
      * @throws Services_Amazon_SQS_InvalidQueueException if this queue does
      *         not exist for the Amazon SQS account.
@@ -343,19 +343,19 @@ class Services_Amazon_SQS_Queue extends Services_Amazon_SQS
      * Currently, Amazon SQS only allows retrieving the values of the
      * following attributes:
      *
-     * - <tt>ApproximateNumberOfMessages</tt> - an approximation of the number
-     *                                          of messages in this queue.
-     * - <tt>VisibilityTimeout</tt>           - the default time period for
-     *                                          which messages are made
-     *                                          invisible when retrieved from
-     *                                          this queue.
+     * - <kbd>ApproximateNumberOfMessages</kbd> - an approximation of the number
+     *                                            of messages in this queue.
+     * - <kbd>VisibilityTimeout</kbd>           - the default time period for
+     *                                            which messages are made
+     *                                            invisible when retrieved from
+     *                                            this queue.
      *
-     * Additionally, the special attribute <tt>All</tt> may be used to retrieve
-     * all available attributes.
+     * Additionally, the special attribute <kbd>All</kbd> may be used to
+     * retrieve all available attributes.
      *
      * @param string $name optional. The name of the attribute value to get or
-     *                     <tt>All</tt> to get all available attributes. If
-     *                     not specified, 'All' is used.
+     *                     <kbd>All</kbd> to get all available attributes. If
+     *                     not specified, <i><kbd>All</kdb></i> is used.
      *
      * @return array an associative array of available attributes. The attribute
      *               name is the array key and the attribute value is the
@@ -418,9 +418,10 @@ class Services_Amazon_SQS_Queue extends Services_Amazon_SQS
     /**
      * Sets an attribute of this queue
      *
-     * Currently, Amazon SQS only allows setting the <tt>VisibilityTimeout</tt>
-     * attribute. This attribute sets the default time period for which
-     * messages are made invisible when retrieved from this queue.
+     * Currently, Amazon SQS only allows setting the
+     * <kbd>VisibilityTimeout</kbd> attribute. This attribute sets the default
+     * time period for which messages are made invisible when retrieved from
+     * this queue.
      *
      * @param string $name  the attribute name.
      * @param mixed  $value the attribute value.
