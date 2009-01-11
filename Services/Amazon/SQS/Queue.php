@@ -441,10 +441,6 @@ class Services_Amazon_SQS_Queue extends Services_Amazon_SQS
      */
     public function setAttribute($name, $value)
     {
-        if (!$this->isValidAttribute($name, $value)) {
-            return false;
-        }
-
         $params = array();
 
         $params['Action']          = 'SetQueueAttributes';
