@@ -58,7 +58,8 @@ $description =
     "available at http://code.google.com/p/simple-aws/ and written by Mike " .
     "Brittain." .
     "\n\n" .
-    "This package requires PHP 5.2.1." .
+    "This package requires PHP 5.2.1. On Red Hat flavored distributions, the " .
+    "'php-xml' package must also be installed." .
     "\n\n" .
     "There are two main ways to use this package. Firstly, it provides an " .
     "API that may be used to manage queues, and to add and remove messages " .
