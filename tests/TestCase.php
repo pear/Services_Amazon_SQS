@@ -5,31 +5,17 @@
 /**
  * Tests for the Services_Amazon_SQS package.
  *
- * These tests require the PHPUnit 3.2 package to be installed. PHPUnit is
+ * These tests require the PHPUnit3 package to be installed. PHPUnit is
  * installable using PEAR. See the
- * {@link http://www.phpunit.de/pocket_guide/3.2/en/installation.html manual}
+ * {@link http://www.phpunit.de/pocket_guide/3.3/en/installation.html manual}
  * for detailed installation instructions.
  *
  * This test suite follows the PEAR AllTests conventions as documented at
  * {@link http://cvs.php.net/viewvc.cgi/pear/AllTests.php?view=markup}.
  *
- * Note:
- *
- *   These tests require access keys from Amazon.com. Enter your access keys
- *   in config.php to run these tests. If config.php is missing, these
- *   tests will be skipped. A sample configuration is provided in the file
- *   config.php.dist.
- *
- * Note:
- *
- *   Deleting queues, which happens in a several places in these unit tests,
- *   must be followed by a timeout to make sure that successive list requests
- *   do not return the banished queues.  This might make some tests extremely
- *   slow.
- *
  * LICENSE:
  *
- * Copyright 2008 Mike Brittain, silverorange
+ * Copyright 2008 Mike Brittain, 2008-2009 silverorange
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,8 +33,8 @@
  * @package   Services_Amazon_SQS
  * @author    Mike Brittain <mike@mikebrittain.com>
  * @author    Michael Gauthier <mike@silverorange.com>
- * @copyright 2008 Mike Brittain, 2008 silverorange
- * @copyright 2008 silverorange
+ * @copyright 2008 Mike Brittain
+ * @copyright 2008-2009 silverorange
  * @license   http://www.apache.org/licenses/LICENSE-2.0 Apache License 2.0
  * @version   CVS: $Id$
  * @link      http://pear.php.net/package/Services_Amazon_SQS
@@ -67,13 +53,28 @@ require_once 'PHPUnit/Framework.php';
 require_once 'Services/Amazon/SQS/QueueManager.php';
 
 /**
+ * For mock HTTP responses
+ *
+ * @see http://clockwerx.blogspot.com/2008/11/pear-and-unit-tests-httprequest2.html
+ */
+require_once 'HTTP/Request2.php';
+
+/**
+ * For mock HTTP responses
+ *
+ * @see http://clockwerx.blogspot.com/2008/11/pear-and-unit-tests-httprequest2.html
+ */
+require_once 'HTTP/Request2/Adapter/Mock.php';
+
+/**
  * Tests for Services_Amazon_SQS
  *
  * @category  Services
  * @package   Services_Amazon_SQS
  * @author    Mike Brittain <mike@mikebrittain.com>
  * @author    Michael Gauthier <mike@silverorange.com>
- * @copyright 2008 Mike Brittain, 2008 silverorange
+ * @copyright 2008 Mike Brittain
+ * @copyright 2008-2009 silverorange
  * @license   http://www.apache.org/licenses/LICENSE-2.0 Apache License 2.0
  * @link      http://pear.php.net/package/Services_Amazon_SQS
  * @link      http://aws.amazon.com/sqs/
@@ -81,31 +82,32 @@ require_once 'Services/Amazon/SQS/QueueManager.php';
  */
 class Services_Amazon_SQS_TestCase extends PHPUnit_Framework_TestCase
 {
+    // {{{ protected properties
+
+    /**
+     * @var HTTP_Request2_Adapter_Mock
+     *
+     * @see Services_Akismet2_TestCase::addHttpResponse()
+     */
+    protected $mock = null;
+
+    /**
+     * @var Services_Amazon_SQS_QueueManager
+     */
+    protected $manager = null;
+
+    /**
+     * @var Services_Amazon_SQS_Queue
+     */
+    protected $queue = null;
+
+    // }}}
     // {{{ private properties
 
     /**
      * @var integer
      */
     private $_oldErrorLevel = 0;
-
-    // }}}
-    // {{{ class constants
-
-    /**
-     * Deletes can take up to 60 seconds, use this timeout after deletes during
-     * test.
-     */
-    const TIMEOUT = 65;
-
-    /**
-     * Prefix used on queues created by these tests.
-     */
-    const PREFIX = 'Services_Amazon_SQS-test-';
-
-    /**
-     * String used for test messages.
-     */
-    const TEST_MESSAGE = 'Sample message right here, folks!';
 
     // }}}
     // {{{ private properties
@@ -133,43 +135,25 @@ class Services_Amazon_SQS_TestCase extends PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        $configFilename = dirname(__FILE__).'/config.php';
-
-        if (!file_exists($configFilename)) {
-            $this->markTestSkipped('Unit test configuration is missing. ' .
-                'Please read the documentation in TestCase.php and create a ' .
-                'configuration file. See the configuration in ' .
-                '\'config.php.dist\' for an example.');
-        }
-
-        include $configFilename;
-
-        $failed = false;
-
-        // make sure config array exists
-        if (   !isset($GLOBALS['Services_Amazon_SQS_Unittest_Config'])
-            || !is_array($GLOBALS['Services_Amazon_SQS_Unittest_Config'])
-        ) {
-            $failed = true;
-        } else {
-            $config = $GLOBALS['Services_Amazon_SQS_Unittest_Config'];
-        }
-
-        // make sure config array has required values
-        if (   $failed
-            || !isset($config['accessKey'])
-            || !isset($config['secretAccessKey'])
-        ) {
-            $this->markTestSkipped('Unit test configuration is incorrect. ' .
-                'Please read the documentation in TestCase.php and fix the ' .
-                'configuration file. See the configuration in ' .
-                '\'config.php.dist\' for an example.');
-        }
-
         $this->_oldErrorLevel = error_reporting(E_ALL | E_STRICT);
 
-        $this->accessKey       = $config['accessKey'];
-        $this->secretAccessKey = $config['secretAccessKey'];
+        $this->mock = new HTTP_Request2_Adapter_Mock();
+
+        $request = new HTTP_Request2();
+        $request->setAdapter($this->mock);
+
+        $this->manager = new Services_Amazon_SQS_QueueManager(
+            '123456789ABCDEFGHIJK',
+            'abcdefghijklmnopqrstuzwxyz/ABCDEFGHIJKLM',
+            $request
+        );
+
+        $this->queue = new Services_Amazon_SQS_Queue(
+            'http://queue.amazonaws.com/example',
+            '123456789ABCDEFGHIJK',
+            'abcdefghijklmnopqrstuzwxyz/ABCDEFGHIJKLM',
+            $request
+        );
     }
 
     // }}}
@@ -177,53 +161,107 @@ class Services_Amazon_SQS_TestCase extends PHPUnit_Framework_TestCase
 
     public function tearDown()
     {
-        // delete all test queues
-        $manager = $this->getQueueManager();
-        $queues = $manager->listQueues(self::PREFIX);
-        foreach ($queues as $queue) {
-            $manager->deleteQueue($queue);
-        }
-        if (count($queues > 0)) {
-            $this->sleep();
-        }
+        unset($this->manager);
+        unset($this->queue);
+        unset($this->mock);
 
         // restore error handling
         error_reporting($this->_oldErrorLevel);
     }
 
     // }}}
+    // {{{ addHttpResponse()
+
+    protected function addHttpResponse($body, $headers = array(),
+        $status = 'HTTP/1.1 200 OK'
+    ) {
+        $response = new HTTP_Request2_Response($status);
+        foreach ($headers as $name => $value) {
+            $headerLine = $name . ': ' . $value;
+            $response->parseHeaderLine($headerLine);
+        }
+        $response->appendBody($body);
+        $this->mock->addResponse($response);
+    }
+
+    // }}}
+    // {{{ formatXml()
+
+    protected function formatXml($xml)
+    {
+        $xml = preg_replace('/^ +/m', '', $xml);
+        $xml = preg_replace('/([^\?])>\n/s', '\1>', $xml);
+        return $xml;
+    }
+
+    // }}}
 
     // queue tests
-    // {{{ testDeleteQueues()
+    // {{{ testDeleteQueue()
 
     /**
      * @group queue
      */
-    public function testDeleteQueues()
+    public function testDeleteQueue()
     {
-        $manager = $this->getQueueManager();
+        // {{{ response body
+        $body = <<<XML
+<?xml version="1.0"?>
+<DeleteQueueResponse xmlns="http://queue.amazonaws.com/doc/2008-01-01/">
+  <ResponseMetadata>
+    <RequestId>4a5a1753-d3f7-478b-aef8-3be0d1c8fe73</RequestId>
+  </ResponseMetadata>
+</DeleteQueueResponse>
+XML;
 
-        // create some queues
-        foreach (range(1, 10) as $i) {
-            $this->createTestQueue();
-        }
+        $body = $this->formatXml($body);
+        // }}}
+        // {{{ response headers
+        $headers = array(
+            'Content-Type'      => 'text/xml',
+            'Transfer-Encoding' => 'chunked',
+            'Date'              => 'Sun, 18 Jan 2009 17:34:20 GMT',
+            'Server'            => 'AWS Simple Queue Service'
+        );
+        // }}}
+        $this->addHttpResponse($body, $headers);
 
-        // maks sure they were created
-        $queues = $manager->listQueues(self::PREFIX);
-        $this->assertTrue(is_array($queues));
-        $this->assertGreaterThanOrEqual(10, count($queues));
+        $queues = $this->manager->deleteQueue($this->queue);
+    }
 
-        // delete them
-        foreach ($queues as $queue) {
-            $manager->deleteQueue($queue);
-        }
+    // }}}
+    // {{{ testDeleteQueueByQueueUrl()
 
-        $this->sleep();
+    /**
+     * @group queue
+     */
+    public function testDeleteQueueByQueueUrl()
+    {
+        // {{{ response body
+        $body = <<<XML
+<?xml version="1.0"?>
+<DeleteQueueResponse xmlns="http://queue.amazonaws.com/doc/2008-01-01/">
+  <ResponseMetadata>
+    <RequestId>4a5a1753-d3f7-478b-aef8-3be0d1c8fe73</RequestId>
+  </ResponseMetadata>
+</DeleteQueueResponse>
+XML;
 
-        // make sure they were deleted
-        $queues = $manager->listQueues(self::PREFIX);
-        $this->assertTrue(is_array($queues));
-        $this->assertEquals(0, count($queues));
+        $body = $this->formatXml($body);
+        // }}}
+        // {{{ response headers
+        $headers = array(
+            'Content-Type'      => 'text/xml',
+            'Transfer-Encoding' => 'chunked',
+            'Date'              => 'Sun, 18 Jan 2009 17:34:20 GMT',
+            'Server'            => 'AWS Simple Queue Service'
+        );
+        // }}}
+        $this->addHttpResponse($body, $headers);
+
+        $queues = $this->manager->deleteQueue(
+            'http://queue.amazonaws.com/example'
+        );
     }
 
     // }}}
@@ -234,16 +272,98 @@ class Services_Amazon_SQS_TestCase extends PHPUnit_Framework_TestCase
      */
     public function testListQueues()
     {
-        $manager = $this->getQueueManager();
+        // {{{ response body
+        $body = <<<XML
+<?xml version="1.0"?>
+<ListQueuesResponse xmlns="http://queue.amazonaws.com/doc/2008-01-01/">
+  <ListQueuesResult>
+    <QueueUrl>http://queue.amazonaws.com/this-is-a-test</QueueUrl>
+    <QueueUrl>http://queue.amazonaws.com/test-queue</QueueUrl>
+    <QueueUrl>http://queue.amazonaws.com/example-queue</QueueUrl>
+    <QueueUrl>http://queue.amazonaws.com/examples</QueueUrl>
+  </ListQueuesResult>
+  <ResponseMetadata>
+    <RequestId>67e6d0ad-f788-4ed4-9a40-ad184177f557</RequestId>
+  </ResponseMetadata>
+</ListQueuesResponse>
+XML;
 
-        // test listing without a prefix
-        $queues = $manager->listQueues();
+        $body = $this->formatXml($body);
+        // }}}
+        // {{{ response headers
+        $headers = array(
+            'Content-Type'      => 'text/xml',
+            'Transfer-Encoding' => 'chunked',
+            'Date'              => 'Sun, 18 Jan 2009 17:34:20 GMT',
+            'Server'            => 'AWS Simple Queue Service'
+        );
+        // }}}
+        $this->addHttpResponse($body, $headers);
+
+        $queues = $this->manager->listQueues();
         $this->assertTrue(is_array($queues));
+        $this->assertEquals(4, count($queues));
 
-        // there should be no test queues
-        $list = $manager->listQueues(self::PREFIX);
-        $this->assertTrue(is_array($list));
-        $this->assertEquals(0, count($list));
+        $expectedQueueUrls = array(
+            'http://queue.amazonaws.com/this-is-a-test',
+            'http://queue.amazonaws.com/test-queue',
+            'http://queue.amazonaws.com/example-queue',
+            'http://queue.amazonaws.com/examples'
+        );
+
+        foreach ($queues as $key => $queue) {
+            $this->assertType('Services_Amazon_SQS_Queue', $queue);
+            $this->assertEquals($expectedQueueUrls[$key], strval($queue));
+        }
+    }
+
+    // }}}
+    // {{{ testListQueuesWithPrefix()
+
+    /**
+     * @group queue
+     */
+    public function testListQueuesWithPrefix()
+    {
+        // {{{ response body
+        $body = <<<XML
+<?xml version="1.0"?>
+<ListQueuesResponse xmlns="http://queue.amazonaws.com/doc/2008-01-01/">
+  <ListQueuesResult>
+    <QueueUrl>http://queue.amazonaws.com/example-queue</QueueUrl>
+    <QueueUrl>http://queue.amazonaws.com/examples</QueueUrl>
+  </ListQueuesResult>
+  <ResponseMetadata>
+    <RequestId>67e6d0ad-f788-4ed4-9a40-ad184177f557</RequestId>
+  </ResponseMetadata>
+</ListQueuesResponse>
+XML;
+
+        $body = $this->formatXml($body);
+        // }}}
+        // {{{ response headers
+        $headers = array(
+            'Content-Type'      => 'text/xml',
+            'Transfer-Encoding' => 'chunked',
+            'Date'              => 'Sun, 18 Jan 2009 17:34:20 GMT',
+            'Server'            => 'AWS Simple Queue Service'
+        );
+        // }}}
+        $this->addHttpResponse($body, $headers);
+
+        $queues = $this->manager->listQueues('example');
+        $this->assertTrue(is_array($queues));
+        $this->assertEquals(2, count($queues));
+
+        $expectedQueueUrls = array(
+            'http://queue.amazonaws.com/example-queue',
+            'http://queue.amazonaws.com/examples'
+        );
+
+        foreach ($queues as $key => $queue) {
+            $this->assertType('Services_Amazon_SQS_Queue', $queue);
+            $this->assertEquals($expectedQueueUrls[$key], strval($queue));
+        }
     }
 
     // }}}
@@ -254,107 +374,286 @@ class Services_Amazon_SQS_TestCase extends PHPUnit_Framework_TestCase
      */
     public function testCreateQueue()
     {
-        $manager = $this->getQueueManager();
+        // {{{ response body
+        $body = <<<XML
+<?xml version="1.0"?>
+<CreateQueueResponse xmlns="http://queue.amazonaws.com/doc/2008-01-01/">
+  <CreateQueueResult>
+    <QueueUrl>http://queue.amazonaws.com/example</QueueUrl>
+  </CreateQueueResult>
+  <ResponseMetadata>
+    <RequestId>9a3bdd9b-34e4-48c7-b071-9edfc1500b88</RequestId>
+  </ResponseMetadata>
+</CreateQueueResponse>
+XML;
 
-        $queue = $this->createTestQueue();
+        $body = $this->formatXml($body);
+        // }}}
+        // {{{ response headers
+        $headers = array(
+            'Content-Type'      => 'text/xml',
+            'Transfer-Encoding' => 'chunked',
+            'Date'              => 'Sun, 18 Jan 2009 17:34:20 GMT',
+            'Server'            => 'AWS Simple Queue Service'
+        );
+        // }}}
+        $this->addHttpResponse($body, $headers);
+
+        $queue = $this->manager->createQueue('example');
+
         $this->assertType('Services_Amazon_SQS_Queue', $queue);
+        $this->assertEquals(
+            'http://queue.amazonaws.com/example',
+            strval($queue)
+        );
+    }
 
-        $queue = $this->createTestQueue();
+    // }}}
+    // {{{ testCreateQueueWithVisibilityTimeout()
+
+    /**
+     * @group queue
+     */
+    public function testCreateQueueWithVisibilityTimeout()
+    {
+        // {{{ response body
+        $body = <<<XML
+<?xml version="1.0"?>
+<CreateQueueResponse xmlns="http://queue.amazonaws.com/doc/2008-01-01/">
+  <CreateQueueResult>
+    <QueueUrl>http://queue.amazonaws.com/example</QueueUrl>
+  </CreateQueueResult>
+  <ResponseMetadata>
+    <RequestId>9a3bdd9b-34e4-48c7-b071-9edfc1500b88</RequestId>
+  </ResponseMetadata>
+</CreateQueueResponse>
+XML;
+
+        $body = $this->formatXml($body);
+        // }}}
+        // {{{ response headers
+        $headers = array(
+            'Content-Type'      => 'text/xml',
+            'Transfer-Encoding' => 'chunked',
+            'Date'              => 'Sun, 18 Jan 2009 17:34:20 GMT',
+            'Server'            => 'AWS Simple Queue Service'
+        );
+        // }}}
+        $this->addHttpResponse($body, $headers);
+
+        $queue = $this->manager->createQueue('example', 500);
+
         $this->assertType('Services_Amazon_SQS_Queue', $queue);
+        $this->assertEquals(
+            'http://queue.amazonaws.com/example',
+            strval($queue)
+        );
+    }
 
-        $this->sleep();
+    // }}}
+    // {{{ testCreateQueueWithInvalidVisibilityTimeout()
 
-        $queues = $manager->listQueues(self::PREFIX);
-        $this->assertTrue(is_array($queues));
-        $this->assertGreaterThanOrEqual(2, count($queues));
+    /**
+     * @group queue
+     * @expectedException Services_Amazon_SQS_InvalidTimeoutException
+     */
+    public function testCreateQueueWithInvalidVisibilityTimeout()
+    {
+        $queue = $this->manager->createQueue('example', 10000);
     }
 
     // }}}
 
     // attribute tests
-    // {{{ testGetAttributes_all()
+    // {{{ testGetAllAttributes()
 
     /**
      * @group attributes
      */
-    public function testGetAttributes_all()
+    public function testGetAllAttributes()
     {
-        $manager = $this->getQueueManager();
-        $queue   = $this->createTestQueue();
+        // {{{ response body
+        $body = <<<XML
+<?xml version="1.0"?>
+<GetAttributesResponse xmlns="http://queue.amazonaws.com/doc/2008-01-01/">
+  <GetAttributesResult>
+    <Attribute>
+      <Name>VisibilityTimeout</Name>
+      <Value>123</Value>
+    </Attribute>
+    <Attribute>
+      <Name>ApproximateNumberOfMessages</Name>
+      <Value>456</Value>
+    </Attribute>
+  </GetAttributesResult>
+  <ResponseMetadata>
+    <RequestId>ac8e1fc5-4fe7-499c-b2ea-a3c183dda6aa</RequestId>
+  </ResponseMetadata>
+</GetAttributesResponse>
+XML;
 
-        // test getting all attributes
-        $attributes = $queue->getAttributes();
-        $this->assertTrue(is_array($attributes));
+        $body = $this->formatXml($body);
+        // }}}
+        // {{{ response headers
+        $headers = array(
+            'Content-Type'      => 'text/xml',
+            'Transfer-Encoding' => 'chunked',
+            'Date'              => 'Sun, 18 Jan 2009 17:34:20 GMT',
+            'Server'            => 'AWS Simple Queue Service'
+        );
+        // }}}
+        $this->addHttpResponse($body, $headers);
+
+        $attributes = $this->queue->getAttributes();
+
+        $this->assertTrue(
+            is_array($attributes),
+            'Returned attributes value is not an array.'
+        );
+
         $this->assertEquals(2, count($attributes));
 
         $this->assertArrayHasKey('VisibilityTimeout', $attributes);
-        $this->assertRegExp('/^\d+$/', $attributes['VisibilityTimeout'],
-            'VisibilityTimeout is not an integer');
-
-        $this->assertEquals(30, $attributes['VisibilityTimeout']);
+        $this->assertEquals(123, $attributes['VisibilityTimeout']);
 
         $this->assertArrayHasKey('ApproximateNumberOfMessages', $attributes);
-        $this->assertRegExp('/^\d+$/',
-            $attributes['ApproximateNumberOfMessages'],
-            'ApproximateNumberOfMessages is not an integer');
-
-        $this->assertEquals(0, $attributes['ApproximateNumberOfMessages']);
+        $this->assertEquals(456, $attributes['ApproximateNumberOfMessages']);
     }
 
     // }}}
-    // {{{ testGetAttributes_VisibilityTimeout()
+    // {{{ testGetVisibilityTimeoutAttribute()
 
     /**
      * @group attributes
      */
-    public function testGetAttributes_VisibilityTimeout()
+    public function testGetVisibilityTimeoutAttribute()
     {
-        $manager = $this->getQueueManager();
-        $queue   = $this->createTestQueue();
+        // {{{ response body
+        $body = <<<XML
+<?xml version="1.0"?>
+<GetAttributesResponse xmlns="http://queue.amazonaws.com/doc/2008-01-01/">
+  <GetAttributesResult>
+    <Attribute>
+      <Name>VisibilityTimeout</Name>
+      <Value>123</Value>
+    </Attribute>
+  </GetAttributesResult>
+  <ResponseMetadata>
+    <RequestId>ac8e1fc5-4fe7-499c-b2ea-a3c183dda6aa</RequestId>
+  </ResponseMetadata>
+</GetAttributesResponse>
+XML;
 
-        // test getting the 'VisibilityTimeout' attribute
-        $attributes = $queue->getAttributes('VisibilityTimeout');
-        $this->assertTrue(is_array($attributes));
+        $body = $this->formatXml($body);
+        // }}}
+        // {{{ response headers
+        $headers = array(
+            'Content-Type'      => 'text/xml',
+            'Transfer-Encoding' => 'chunked',
+            'Date'              => 'Sun, 18 Jan 2009 17:34:20 GMT',
+            'Server'            => 'AWS Simple Queue Service'
+        );
+        // }}}
+        $this->addHttpResponse($body, $headers);
+
+        $attributes = $this->queue->getAttributes('VisibilityTimeout');
+
+        $this->assertTrue(
+            is_array($attributes),
+            'Returned attributes value is not an array.'
+        );
+
         $this->assertEquals(1, count($attributes));
 
         $this->assertArrayHasKey('VisibilityTimeout', $attributes);
-        $this->assertRegExp('/^\d+$/',
-            $attributes['VisibilityTimeout'],
-            'VisibilityTimeout is not an integer');
-
-        $this->assertEquals(30, $attributes['VisibilityTimeout']);
+        $this->assertEquals(123, $attributes['VisibilityTimeout']);
     }
 
     // }}}
-    // {{{ testSetAttribute_invalid()
+    // {{{ testGetApproximateNumberOfMessagesAttribute()
 
     /**
      * @group attributes
      */
-    public function testSetAttribute_invalid()
+    public function testGetApproximateNumberOfMessagesAttribute()
     {
-        $manager = $this->getQueueManager();
-        $queue   = $this->createTestQueue();
+        // {{{ response body
+        $body = <<<XML
+<?xml version="1.0"?>
+<GetAttributesResponse xmlns="http://queue.amazonaws.com/doc/2008-01-01/">
+  <GetAttributesResult>
+    <Attribute>
+      <Name>ApproximateNumberOfMessages</Name>
+      <Value>123</Value>
+    </Attribute>
+  </GetAttributesResult>
+  <ResponseMetadata>
+    <RequestId>ac8e1fc5-4fe7-499c-b2ea-a3c183dda6aa</RequestId>
+  </ResponseMetadata>
+</GetAttributesResponse>
+XML;
 
-        // test setting an invalid attribute
-        $response = $queue->setAttribute('InvalidAttributeName', 1);
-        $this->assertFalse($response);
+        $body = $this->formatXml($body);
+        // }}}
+        // {{{ response headers
+        $headers = array(
+            'Content-Type'      => 'text/xml',
+            'Transfer-Encoding' => 'chunked',
+            'Date'              => 'Sun, 18 Jan 2009 17:34:20 GMT',
+            'Server'            => 'AWS Simple Queue Service'
+        );
+        // }}}
+        $this->addHttpResponse($body, $headers);
+
+        $attributes = $this->queue->getAttributes('ApproximateNumberOfMessages');
+
+        $this->assertTrue(
+            is_array($attributes),
+            'Returned attributes value is not an array.'
+        );
+
+        $this->assertEquals(1, count($attributes));
+
+        $this->assertArrayHasKey('ApproximateNumberOfMessages', $attributes);
+        $this->assertEquals(123, $attributes['ApproximateNumberOfMessages']);
     }
 
     // }}}
-    // {{{ testSetAttribute_invalid_value()
+    // {{{ testGetInvalidAttribute()
 
     /**
      * @group attributes
+     * @expectedException Services_Amazon_SQS_InvalidAttributeException
      */
-    public function testSetAttribute_invalid_value()
+    public function testGetInvalidAttribute()
     {
-        $manager = $this->getQueueManager();
-        $queue   = $this->createTestQueue();
+        // {{{ response body
+        $body = <<<XML
+<?xml version="1.0"?>
+<ErrorResponse xmlns="http://queue.amazonaws.com/doc/2008-01-01/">
+  <Error>
+    <Type>Sender</Type>
+    <Code>InvalidAttributeName</Code>
+    <Message>Unknown Attribute InvalidAttributeName</Message>
+    <Detail/>
+  </Error>
+  <RequestID>0dfad892-bcd7-481b-8954-ed6a69245b00</RequestID>
+</ErrorResponse>
+XML;
 
-        // test setting an invalid attribute value
-        $response = $queue->setAttribute('VisibilityTimeout', 10000);
-        $this->assertFalse($response);
+        $body = $this->formatXml($body);
+        // }}}
+        // {{{ response headers
+        $headers = array(
+            'Transfer-Encoding' => 'chunked',
+            'Date'              => 'Sun, 18 Jan 2009 17:34:20 GMT',
+            'Cneonction'        => 'close', // intentional misspelling
+            'Server'            => 'AWS Simple Queue Service'
+        );
+        // }}}
+        $this->addHttpResponse($body, $headers, 'HTTP/1.1 400 Bad Request');
+
+        $response = $this->queue->getAttributes('InvalidAttributeName');
     }
 
     // }}}
@@ -365,115 +664,383 @@ class Services_Amazon_SQS_TestCase extends PHPUnit_Framework_TestCase
      */
     public function testSetAttribute()
     {
-        $manager = $this->getQueueManager();
-        $queue   = $this->createTestQueue();
-        $value   = 200;
+        // {{{ response body
+        $body = <<<XML
+<?xml version="1.0"?>
+<SetQueueAttributesResponse xmlns="http://queue.amazonaws.com/doc/2008-01-01/">
+  <ResponseMetadata>
+    <RequestId>ede893f6-d22b-4eb8-8636-a325a4407ce8</RequestId>
+  </ResponseMetadata>
+</SetQueueAttributesResponse>
+XML;
 
-        // test setting 'VisibilityTimeout' attribute value
-        $response = $queue->setAttribute('VisibilityTimeout', $value);
-        $this->assertTrue($response);
+        $body = $this->formatXml($body);
+        // }}}
+        // {{{ response headers
+        $headers = array(
+            'Content-Type'      => 'text/xml',
+            'Transfer-Encoding' => 'chunked',
+            'Date'              => 'Sun, 18 Jan 2009 17:34:20 GMT',
+            'Server'            => 'AWS Simple Queue Service'
+        );
+        // }}}
+        $this->addHttpResponse($body, $headers, 'HTTP/1.1 400 Bad Request');
 
-        // check the attribute value
-        $attributes = $queue->getAttributes('VisibilityTimeout');
-        $this->assertArrayHasKey('VisibilityTimeout', $attributes);
-        $this->assertRegExp('/^\d+$/',
-            $attributes['VisibilityTimeout'],
-            'VisibilityTimeout is not an integer');
+        $this->queue->setAttribute('VisibilityTimeout', 123);
+    }
 
-        $this->assertEquals($value, $attributes['VisibilityTimeout']);
+    // }}}
+    // {{{ testSetInvalidAttribute()
+
+    /**
+     * @group attributes
+     * @expectedException Services_Amazon_SQS_InvalidAttributeException
+     */
+    public function testSetInvalidAttribute()
+    {
+        // {{{ response body
+        $body = <<<XML
+<?xml version="1.0"?>
+<ErrorResponse xmlns="http://queue.amazonaws.com/doc/2008-01-01/">
+  <Error>
+    <Type>Sender</Type>
+    <Code>InvalidAttributeName</Code>
+    <Message>Unknown Attribute InvalidAttributeName</Message>
+    <Detail/>
+  </Error>
+  <RequestID>0dfad892-bcd7-481b-8954-ed6a69245b00</RequestID>
+</ErrorResponse>
+XML;
+
+        $body = $this->formatXml($body);
+        // }}}
+        // {{{ response headers
+        $headers = array(
+            'Transfer-Encoding' => 'chunked',
+            'Date'              => 'Sun, 18 Jan 2009 17:34:20 GMT',
+            'Cneonction'        => 'close', // intentional misspelling
+            'Server'            => 'AWS Simple Queue Service'
+        );
+        // }}}
+        $this->addHttpResponse($body, $headers, 'HTTP/1.1 400 Bad Request');
+
+        $response = $this->queue->setAttribute('InvalidAttributeName', 1);
+    }
+
+    // }}}
+    // {{{ testSetInvalidAttributeValue()
+
+    /**
+     * @group attributes
+     * @expectedException Services_Amazon_SQS_ErrorException
+     */
+    public function testSetInvalidAttributeValue()
+    {
+        // {{{ response body
+        $body = <<<XML
+<?xml version="1.0"?>
+<ErrorResponse xmlns="http://queue.amazonaws.com/doc/2008-01-01/">
+  <Error>
+    <Type>Sender</Type>
+    <Code>InvalidAttributeValue</Code>
+    <Message>Attribute VisibilityTimeout must be an integer between 0 and 7200</Message>
+    <Detail/>
+  </Error>
+  <RequestID>cc46c162-d65f-4874-bf74-79d28e00b181</RequestID>
+</ErrorResponse>
+XML;
+
+        $body = $this->formatXml($body);
+        // }}}
+        // {{{ response headers
+        $headers = array(
+            'Transfer-Encoding' => 'chunked',
+            'Date'              => 'Sun, 18 Jan 2009 17:34:20 GMT',
+            'Cneonction'        => 'close', // intentional misspelling
+            'Server'            => 'AWS Simple Queue Service'
+        );
+        // }}}
+        $this->addHttpResponse($body, $headers, 'HTTP/1.1 400 Bad Request');
+
+        $this->queue->setAttribute('VisibilityTimeout', 10000);
     }
 
     // }}}
 
     // message tests
-    // {{{ testSendAndReceiveMessages()
+    // {{{ testSendMessage()
 
     /**
      * @group message
      */
-    public function testSendAndReceiveMessages()
+    public function testSendMessage()
     {
-        $manager     = $this->getQueueManager();
-        $queue       = $this->createTestQueue();
-        $numMessages = 200;
-        $chunkSize   = 20;
-        $timeout     = 60;
+        // {{{ response body
+        $body = <<<XML
+<?xml version="1.0"?>
+<SendMessageResponse xmlns="http://queue.amazonaws.com/doc/2008-01-01/">
+  <SendMessageResult>
+    <MD5OfMessageBody>8b25734299a8efa7eeb74bf261bdc72d</MD5OfMessageBody>
+    <MessageId>90b160de-132b-45c6-afea-4679b27a485d</MessageId>
+  </SendMessageResult>
+  <ResponseMetadata>
+    <RequestId>ead9e7a4-10c2-4c59-8a4e-4381bab50565</RequestId>
+  </ResponseMetadata>
+</SendMessageResponse>
+XML;
 
-        // add ten messages to the queue
-        $timestamp = gmdate('c');
-        for ($i = 0; $i < $numMessages; $i++) {
-            $message = sprintf('Message %s: %s [%s]',
-                $i, $timestamp, uniqid());
+        $body = $this->formatXml($body);
+        // }}}
+        // {{{ response headers
+        $headers = array(
+            'Content-Type'      => 'text/xml',
+            'Transfer-Encoding' => 'chunked',
+            'Date'              => 'Sun, 18 Jan 2009 17:34:20 GMT',
+            'Server'            => 'AWS Simple Queue Service'
+        );
+        // }}}
+        $this->addHttpResponse($body, $headers);
 
-            $result = $queue->send($message);
-            $this->assertTrue($result);
-        }
+        $messageId = $this->queue->send('Services_Amazon_SQS Unit Test');
 
-        // retrieve the messages from the queue with a 60 second timeout
-        $received = array();
-        while (count($received) < $numMessages) {
-            $messages = $queue->receive($chunkSize, $timeout);
-            foreach ($messages as $message) {
-                $this->assertTrue(is_array($message));
-                $this->assertArrayHasKey('id', $message);
-                $this->assertArrayHasKey('body', $message);
-                $this->assertArrayHasKey('handle', $message);
-            }
-            $received = array_merge($received, $messages);
-        }
-
-        $this->assertEquals($numMessages, count($received));
+        $this->assertEquals('90b160de-132b-45c6-afea-4679b27a485d', $messageId);
     }
 
     // }}}
-    // {{{ testVisibilityTimeout()
+    // {{{ testReceiveOneMessage()
 
     /**
      * @group message
      */
-    public function testVisibilityTimeout()
+    public function testReceiveOneMessage()
     {
-        $manager = $this->getQueueManager();
-        $queue   = $this->createTestQueue();
-        $timeout = 5;
+        // {{{ response body
+        $body = <<<XML
+<?xml version="1.0"?>
+<ReceiveMessageResponse xmlns="http://queue.amazonaws.com/doc/2008-01-01/">
+  <ReceiveMessageResult>
+    <Message>
+      <MessageId>90b160de-132b-45c6-afea-4679b27a485d</MessageId>
+      <ReceiptHandle>+eXJYhj5rDqRunVNVvjOQKJ0obJP08UNsXdn2v3Lwq+TDtD3hk3aBKbSH1mGc4hzO/VZOIC0RFzLWMLhfKh4qnn3x35CTz9dLTiBp6rMQSSsfakSe+GcTkPfqzNJdCM4PzHuhDaS9mXjcAcCzIRrOX9Mp5AiZxsfiLGqOsqhtH0=</ReceiptHandle>
+      <MD5OfBody>8b25734299a8efa7eeb74bf261bdc72d</MD5OfBody>
+      <Body>Services_Amazon_SQS Unit Test</Body>
+    </Message>
+  </ReceiveMessageResult>
+  <ResponseMetadata>
+    <RequestId>c890aaba-51fc-4ab4-85d2-a935ea181f60</RequestId>
+  </ResponseMetadata>
+</ReceiveMessageResponse>
+XML;
 
-        // add test message to the queue
-        $result = $queue->send(self::TEST_MESSAGE);
-        $this->assertTrue($result);
+        $body = $this->formatXml($body);
+        // }}}
+        // {{{ response headers
+        $headers = array(
+            'Content-Type'      => 'text/xml',
+            'Transfer-Encoding' => 'chunked',
+            'Date'              => 'Sun, 18 Jan 2009 17:34:20 GMT',
+            'Server'            => 'AWS Simple Queue Service'
+        );
+        // }}}
+        $this->addHttpResponse($body, $headers);
 
-        // retrieve test message with a five second visibility timeout
-        $messages = array();
-        while (count($messages) === 0) {
-            $messages = $queue->receive(1, $timeout);
-            $this->assertTrue(is_array($messages));
-        }
+        $messages = $this->queue->receive();
+
+        $this->assertEquals(1, count($messages));
+
+        $this->assertArrayHasKey(
+            0,
+            $messages,
+            'Messages are not numerically indexed from 0.'
+        );
 
         $message = $messages[0];
-        $this->assertTrue(is_array($message));
+
+        $this->assertTrue(is_array($message), 'Message is not an array.');
+
         $this->assertArrayHasKey('id', $message);
         $this->assertArrayHasKey('body', $message);
         $this->assertArrayHasKey('handle', $message);
+    }
 
-        // make sure test message has the right body
-        $this->assertEquals(self::TEST_MESSAGE, $message['body']);
+    // }}}
+    // {{{ testReceiveManyMessages()
 
-        // try to retrieve again before five seconds are up, no messages should
-        // be returned
-        foreach (range(1, 10) as $i) {
-            $messages = $queue->receive(1, $timeout);
-            $this->assertTrue(is_array($messages));
-            $this->assertEquals(0, count($messages));
-        }
+    /**
+     * @group message
+     */
+    public function testReceiveManyMessages()
+    {
+        // {{{ response body
+        $body = <<<XML
+<?xml version="1.0"?>
+<ReceiveMessageResponse xmlns="http://queue.amazonaws.com/doc/2008-01-01/">
+  <ReceiveMessageResult>
+    <Message>
+      <MessageId>90b160de-132b-45c6-afea-4679b27a485d</MessageId>
+      <ReceiptHandle>+eXJYhj5rDqRunVNVvjOQKJ0obJP08UNsXdn2v3Lwq+TDtD3hk3aBKbSH1mGc4hzO/VZOIC0RFzLWMLhfKh4qnn3x35CTz9dLTiBp6rMQSSsfakSe+GcTkPfqzNJdCM4PzHuhDaS9mXjcAcCzIRrOX9Mp5AiZxsfiLGqOsqhtH0=</ReceiptHandle>
+      <MD5OfBody>8b25734299a8efa7eeb74bf261bdc72d</MD5OfBody>
+      <Body>the</Body>
+    </Message>
+    <Message>
+      <MessageId>f5ce8da6-8874-4608-83fa-e78f30a1cd1f</MessageId>
+      <ReceiptHandle>+eXJYhj5rDqRunVNVvjOQHvhUF2kJ7IQ8o/410f2K/YWoEImH75JlwWnAfQIqV4L2WWUq+cLOUQvOPmlQASPVpLlYuLaau4pCK+yTvqXHpkB6lkPzc0V/4djNn8TlYsW1suYBw9LkHssbAFuUkow5NgPuBDvw8V7UTn6hHkUROo=</ReceiptHandle>
+      <MD5OfBody>acbd18db4cc2f85cedef654fccc4a4d8</MD5OfBody>
+      <Body>quick</Body>
+    </Message>
+    <Message>
+      <MessageId>c913c694-c5f3-4637-be83-6506623c807c</MessageId>
+      <ReceiptHandle>+eXJYhj5rDqRunVNVvjOQAqTwmqKi9DuwlcpshHNCZQTwolrsonDv+DxH9ur7SBaLaXZCJ8LoQnX5fdVFQUb8rRQNWJqrMXrUcc3S9ZD/moiAPI2KT9euTubylT9wrYEzrXp0EMvE9Rx0eg5pWzC9uWXyMEpMjbWtFgLo2wcVEs=</ReceiptHandle>
+      <MD5OfBody>1df3746a4728276afdc24f828186f73a</MD5OfBody>
+      <Body>brown</Body>
+    </Message>
+    <Message>
+      <MessageId>898cb1ab-c74e-4a0f-b597-1433ce03f056</MessageId>
+      <ReceiptHandle>+eXJYhj5rDqRunVNVvjOQHpEi8vjbiIXepp8vWhPeCAZc3GpfGJRGqEbWsfMKVbTupbrl6s47gfDAA1Ww6R4FM6SdKYE993x2GAX70hR4T2WYKwCmA3N3hVQIyXqu3aUi2+wORPqZKLBM14y6hUwgIA9J7O2dPbCUTn6hHkUROo=</ReceiptHandle>
+      <MD5OfBody>2b95d1f09b8b66c5c43622a4d9ec9a04</MD5OfBody>
+      <Body>fox</Body>
+    </Message>
+    <Message>
+      <MessageId>51245ccb-0e97-4cdd-8e99-a3ed3f6e5ac7</MessageId>
+      <ReceiptHandle>+eXJYhj5rDqRunVNVvjOQH6genZB61KXsXdn2v3Lwq8FsRf7Nw+f11JrUoe9kZPiiMdlJGLSsPaClgoLKONKlkRU+qGXK4i4+aV5+65fs3laSVvREzzrh9WZvhs0BoiLbuYByTHaoYljBbctKRQVIoVmk+FpM7/e9bnPhfj2gbM=</ReceiptHandle>
+      <MD5OfBody>0ffe34b4e04c2b282c5a388b1ad8aa7a</MD5OfBody>
+      <Body>jumps</Body>
+    </Message>
+  </ReceiveMessageResult>
+  <ResponseMetadata>
+    <RequestId>3022b953-0e76-48d7-a4f1-b351d6e1dbb1</RequestId>
+  </ResponseMetadata>
+</ReceiveMessageResponse>
+XML;
 
-        // wait for timeout to expire
-        sleep($timeout);
+        $body = $this->formatXml($body);
+        // }}}
+        // {{{ response headers
+        $headers = array(
+            'Content-Type'      => 'text/xml',
+            'Transfer-Encoding' => 'chunked',
+            'Date'              => 'Sun, 18 Jan 2009 17:34:20 GMT',
+            'Server'            => 'AWS Simple Queue Service'
+        );
+        // }}}
+        $this->addHttpResponse($body, $headers);
 
-        // try to retrieve the message again, it should be successfully returned
-        $messages = array();
-        while (count($messages) === 0) {
-            $messages = $queue->receive(1, $timeout);
-            $this->assertTrue(is_array($messages));
-        }
+        $messages = $this->queue->receive();
+
+        // {{{ expected messages
+        $expectedMessages = array(
+            array(
+                'id'     => '90b160de-132b-45c6-afea-4679b27a485d',
+                'body'   => 'the',
+                'handle' => '+eXJYhj5rDqRunVNVvjOQKJ0obJP08UNsXdn2v3Lwq+' .
+                            'TDtD3hk3aBKbSH1mGc4hzO/VZOIC0RFzLWMLhfKh4qn' .
+                            'n3x35CTz9dLTiBp6rMQSSsfakSe+GcTkPfqzNJdCM4P' .
+                            'zHuhDaS9mXjcAcCzIRrOX9Mp5AiZxsfiLGqOsqhtH0='
+            ),
+            array(
+                'id'     => 'f5ce8da6-8874-4608-83fa-e78f30a1cd1f',
+                'body'   => 'quick',
+                'handle' => '+eXJYhj5rDqRunVNVvjOQHvhUF2kJ7IQ8o/410f2K/Y' .
+                            'WoEImH75JlwWnAfQIqV4L2WWUq+cLOUQvOPmlQASPVp' .
+                            'LlYuLaau4pCK+yTvqXHpkB6lkPzc0V/4djNn8TlYsW1' .
+                            'suYBw9LkHssbAFuUkow5NgPuBDvw8V7UTn6hHkUROo='
+            ),
+            array(
+                'id'     => 'c913c694-c5f3-4637-be83-6506623c807c',
+                'body'   => 'brown',
+                'handle' => '+eXJYhj5rDqRunVNVvjOQAqTwmqKi9DuwlcpshHNCZQ' .
+                            'TwolrsonDv+DxH9ur7SBaLaXZCJ8LoQnX5fdVFQUb8r' .
+                            'RQNWJqrMXrUcc3S9ZD/moiAPI2KT9euTubylT9wrYEz' .
+                            'rXp0EMvE9Rx0eg5pWzC9uWXyMEpMjbWtFgLo2wcVEs='
+            ),
+            array(
+                'id'     => '898cb1ab-c74e-4a0f-b597-1433ce03f056',
+                'body'   => 'fox',
+                'handle' => '+eXJYhj5rDqRunVNVvjOQHpEi8vjbiIXepp8vWhPeCA' .
+                            'Zc3GpfGJRGqEbWsfMKVbTupbrl6s47gfDAA1Ww6R4FM' .
+                            '6SdKYE993x2GAX70hR4T2WYKwCmA3N3hVQIyXqu3aUi' .
+                            '2+wORPqZKLBM14y6hUwgIA9J7O2dPbCUTn6hHkUROo='
+            ),
+            array(
+                'id'     => '51245ccb-0e97-4cdd-8e99-a3ed3f6e5ac7',
+                'body'   => 'jumps',
+                'handle' => '+eXJYhj5rDqRunVNVvjOQH6genZB61KXsXdn2v3Lwq8' .
+                            'FsRf7Nw+f11JrUoe9kZPiiMdlJGLSsPaClgoLKONKlk' .
+                            'RU+qGXK4i4+aV5+65fs3laSVvREzzrh9WZvhs0BoiLb' .
+                            'uYByTHaoYljBbctKRQVIoVmk+FpM7/e9bnPhfj2gbM='
+            ),
+        );
+        // }}}
+        $this->assertEquals($expectedMessages, $messages);
+    }
+
+    // }}}
+    // {{{ testReceiveWithVisibilityTimeout()
+
+    /**
+     * @group message
+     */
+    public function testReceiveWithVisibilityTimeout()
+    {
+        // {{{ response body
+        $body = <<<XML
+<?xml version="1.0"?>
+<ReceiveMessageResponse xmlns="http://queue.amazonaws.com/doc/2008-01-01/">
+  <ReceiveMessageResult>
+    <Message>
+      <MessageId>90b160de-132b-45c6-afea-4679b27a485d</MessageId>
+      <ReceiptHandle>+eXJYhj5rDqRunVNVvjOQKJ0obJP08UNsXdn2v3Lwq+TDtD3hk3aBKbSH1mGc4hzO/VZOIC0RFzLWMLhfKh4qnn3x35CTz9dLTiBp6rMQSSsfakSe+GcTkPfqzNJdCM4PzHuhDaS9mXjcAcCzIRrOX9Mp5AiZxsfiLGqOsqhtH0=</ReceiptHandle>
+      <MD5OfBody>8b25734299a8efa7eeb74bf261bdc72d</MD5OfBody>
+      <Body>Services_Amazon_SQS Unit Test</Body>
+    </Message>
+  </ReceiveMessageResult>
+  <ResponseMetadata>
+    <RequestId>c890aaba-51fc-4ab4-85d2-a935ea181f60</RequestId>
+  </ResponseMetadata>
+</ReceiveMessageResponse>
+XML;
+
+        $body = $this->formatXml($body);
+        // }}}
+        // {{{ response headers
+        $headers = array(
+            'Content-Type'      => 'text/xml',
+            'Transfer-Encoding' => 'chunked',
+            'Date'              => 'Sun, 18 Jan 2009 17:34:20 GMT',
+            'Server'            => 'AWS Simple Queue Service'
+        );
+        // }}}
+        $this->addHttpResponse($body, $headers);
+
+        $messages = $this->queue->receive(1, 500);
+
+        $this->assertEquals(1, count($messages));
+
+        $this->assertArrayHasKey(
+            0,
+            $messages,
+            'Messages are not numerically indexed from 0.'
+        );
+
+        $message = $messages[0];
+
+        $this->assertTrue(is_array($message), 'Message is not an array.');
+
+        $this->assertArrayHasKey('id', $message);
+        $this->assertArrayHasKey('body', $message);
+        $this->assertArrayHasKey('handle', $message);
+    }
+
+    // }}}
+    // {{{ testReceiveWithInvalidVisibilityTimeout()
+
+    /**
+     * @group message
+     * @expectedException Services_Amazon_SQS_InvalidTimeoutException
+     */
+    public function testReceiveWithInvalidVisibilityTimeout()
+    {
+        $this->queue->receive(1, 10000);
     }
 
     // }}}
@@ -484,66 +1051,71 @@ class Services_Amazon_SQS_TestCase extends PHPUnit_Framework_TestCase
      */
     public function testDeleteMessage()
     {
-        $manager = $this->getQueueManager();
-        $queue   = $this->createTestQueue();
+        // {{{ response body
+        $body = <<<XML
+<?xml version="1.0"?>
+<DeleteMessageResponse xmlns="http://queue.amazonaws.com/doc/2008-01-01/">
+  <ResponseMetadata>
+    <RequestId>7eb71adb-362b-4ce4-a626-4dcd7ca0dfc2</RequestId>
+  </ResponseMetadata>
+</DeleteMessageResponse>
+XML;
 
-        // add test message to the queue
-        $result = $queue->send(self::TEST_MESSAGE);
-        $this->assertTrue($result);
+        $body = $this->formatXml($body);
+        // }}}
+        // {{{ response headers
+        $headers = array(
+            'Content-Type'      => 'text/xml',
+            'Transfer-Encoding' => 'chunked',
+            'Date'              => 'Sun, 18 Jan 2009 17:34:20 GMT',
+            'Server'            => 'AWS Simple Queue Service'
+        );
+        // }}}
+        $this->addHttpResponse($body, $headers);
 
-        // retrieve test message
-        $messages = array();
-        while (count($messages) === 0) {
-            $messages = $queue->receive();
-            $this->assertTrue(is_array($messages));
-        }
-
-        $message = $messages[0];
-        $this->assertTrue(is_array($message));
-        $this->assertArrayHasKey('id', $message);
-        $this->assertArrayHasKey('body', $message);
-        $this->assertArrayHasKey('handle', $message);
-
-        // make sure test message has the right body
-        $this->assertEquals(self::TEST_MESSAGE, $message['body']);
-
-        // delete the message
-        $response = $queue->delete($message['handle']);
-        $this->assertEquals(true, $response);
-
-        // Note: We can't actually check if the message is still in the queue
-        //       here. Amazon does not guarantee the message will actually be
-        //       deleted.
+        $this->queue->delete(
+            '+eXJYhj5rDqRunVNVvjOQKJ0obJP08UNsXdn2v3Lwq+' .
+            'TDtD3hk3aBKbSH1mGc4hzO/VZOIC0RFzLWMLhfKh4qn' .
+            'n3x35CTz9dLTiBp6rMQSSsfakSe+GcTkPfqzNJdCM4P' .
+            'zHuhDaS9mXjcAcCzIRrOX9Mp5AiZxsfiLGqOsqhtH0'
+        );
     }
 
     // }}}
+    // {{{ testDeleteInvalidMessage()
 
-    // helper methods
-    // {{{ getQueueManager()
-
-    protected function getQueueManager()
+    /**
+     * @group message
+     * @expectedException Services_Amazon_SQS_ErrorException
+     */
+    public function testDeleteInvalidMessage()
     {
-        return new Services_Amazon_SQS_QueueManager($this->accessKey,
-            $this->secretAccessKey);
-    }
+        // {{{ response body
+        $body = <<<XML
+<?xml version="1.0"?>
+<ErrorResponse xmlns="http://queue.amazonaws.com/doc/2008-01-01/">
+  <Error>
+    <Type>Sender</Type>
+    <Code>ReceiptHandleIsInvalid</Code>
+    <Message>ReceiptHandleIsInvalid</Message>
+    <Detail/>
+  </Error>
+  <RequestID>01ec860e-694c-4857-b1c2-61691129c09d</RequestID>
+</ErrorResponse>
+XML;
 
-    // }}}
-    // {{{ createTestQueue()
+        $body = $this->formatXml($body);
+        // }}}
+        // {{{ response headers
+        $headers = array(
+            'Transfer-Encoding' => 'chunked',
+            'Date'              => 'Sun, 18 Jan 2009 17:34:20 GMT',
+            'Server'            => 'AWS Simple Queue Service'
+        );
+        // }}}
+        $this->addHttpResponse($body, $headers, 'HTTP/1.1 404 Not Found');
 
-    protected function createTestQueue()
-    {
-        $manager = $this->getQueueManager();
-        $name = uniqid(self::PREFIX);
-        $queue = $manager->createQueue($name);
-        return $queue;
-    }
-
-    // }}}
-    // {{{ sleep()
-
-    protected function sleep()
-    {
-        sleep(self::TIMEOUT);
+        $this->queue->delete('invalid-receipt-handle');
     }
 
     // }}}
