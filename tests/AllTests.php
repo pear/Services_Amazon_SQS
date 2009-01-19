@@ -47,8 +47,6 @@
  * @link      http://s3.amazonaws.com/awsdocs/SQS/20080101/sqs-dg-20080101.pdf
  */
 
-chdir(dirname(__FILE__));
-
 if (!defined('PHPUnit_MAIN_METHOD')) {
     define('PHPUnit_MAIN_METHOD', 'Services_Amazon_SQS_AllTests::main');
 }
