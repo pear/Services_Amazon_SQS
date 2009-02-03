@@ -26,7 +26,7 @@
  * @category  Services
  * @package   Services_Amazon_SQS
  * @author    Michael Gauthier <mike@silverorange.com>
- * @copyright 2008 silverorange
+ * @copyright 2008-2009 silverorange
  * @license   http://www.apache.org/licenses/LICENSE-2.0 Apache License 2.0
  * @link      http://pear.php.net/package/Services_Amazon_SQS
  */
@@ -40,7 +40,14 @@ $api_state       = 'alpha';
 $release_version = '0.2.0';
 $release_state   = 'alpha';
 $release_notes   =
-    "Second PEAR release. Updated to use Amazon Signature Version 2. See " .
+    "Second PEAR release\n" .
+    " * Implemented Req #15431. Added send and receive commands to the " .
+    "command-line interface\n" .
+    " * Implemented Req #15451. Use mock-http requests in unit tests\n" .
+    " * Increased test coverage\n" .
+    " * Implemented Req #15430. Use Console_CommandLine for command-line " .
+    "interface\n" .
+    " * Implemented Req #15432. Use Amazon Signature Version 2. See " .
     "http://developer.amazonwebservices.com/connect/entry.jspa?externalID=1928";
 
 $description =
@@ -76,9 +83,11 @@ $description =
     " sqs [options] command [args]" .
     "\n\n" .
     "Commands:\n" .
-    " create Creates a new queue with the specified name.\n" .
-    " delete Deletes an existing queue by the specified URI.\n" .
-    " list Lists avaiable queues.\n" .
+    " create  Creates a new queue with the specified name.\n" .
+    " delete  Deletes an existing queue by the specified URI.\n" .
+    " list    Lists avaiable queues.\n" .
+    " send    Sends a message to the specified queue.\n" .
+    " receive Receives a message from the specified queue.\n" .
     " version Displays version information." .
     "\n\n" .
     "Options:\n" .
@@ -88,42 +97,46 @@ $description =
 
 $package = new PEAR_PackageFileManager2();
 
-$package->setOptions(array(
-    'filelistgenerator'       => 'cvs',
-    'simpleoutput'            => true,
-    'baseinstalldir'          => '/',
-    'packagedirectory'        => './',
-    'dir_roles'               => array(
-        'Services'            => 'php',
-        'Services/Amazon'     => 'php',
-        'Services/Amazon/SQS' => 'php',
-        'tests'               => 'test'
-    ),
-    'exceptions'              => array(
-        'scripts/sqs'         => 'script',
-        'scripts/sqs.bat'     => 'script',
-        'cfg/sqs.ini'         => 'cfg',
-        'cfg/sqs-win.ini'     => 'cfg'
-    ),
-    'ignore'                  => array(
-        'package.php',
-        '*.tgz'
-    ),
-    'installexceptions'       => array(
-        'scripts/sqs'         => '/',
-        'scripts/sqs.bat'     => '/',
-        'cfg/sqs.ini'         => '/',
-        'cfg/sqs-win.ini'     => '/'
+$package->setOptions(
+    array(
+        'filelistgenerator'       => 'cvs',
+        'simpleoutput'            => true,
+        'baseinstalldir'          => '/',
+        'packagedirectory'        => './',
+        'dir_roles'               => array(
+            'Services'            => 'php',
+            'Services/Amazon'     => 'php',
+            'Services/Amazon/SQS' => 'php',
+            'tests'               => 'test'
+        ),
+        'exceptions'              => array(
+            'scripts/sqs'         => 'script',
+            'scripts/sqs.bat'     => 'script',
+            'cfg/sqs.ini'         => 'cfg',
+            'cfg/sqs-win.ini'     => 'cfg'
+        ),
+        'ignore'                  => array(
+            'package.php',
+            '*.tgz'
+        ),
+        'installexceptions'       => array(
+            'scripts/sqs'         => '/',
+            'scripts/sqs.bat'     => '/',
+            'cfg/sqs.ini'         => '/',
+            'cfg/sqs-win.ini'     => '/'
+        )
     )
-));
+);
 
 $package->setPackage('Services_Amazon_SQS');
-$package->setSummary('PHP API and tools for Amazon SQS');
+$package->setSummary('PHP API and tools for Amazon SQS (Simple Queue Service)');
 $package->setDescription($description);
 $package->setChannel('pear.php.net');
 $package->setPackageType('php');
-$package->setLicense('Apache License 2.0',
-    'http://www.apache.org/licenses/LICENSE-2.0');
+$package->setLicense(
+    'Apache License 2.0',
+    'http://www.apache.org/licenses/LICENSE-2.0'
+);
 
 $package->setNotes($release_notes);
 $package->setReleaseVersion($release_version);
@@ -131,55 +144,114 @@ $package->setReleaseStability($release_state);
 $package->setAPIVersion($api_version);
 $package->setAPIStability($api_state);
 
-$package->addMaintainer('lead', 'gauthierm', 'Mike Gauthier',
-    'mike@silverorange.com');
+$package->addMaintainer(
+    'lead',
+    'gauthierm',
+    'Mike Gauthier',
+    'mike@silverorange.com'
+);
 
-$package->addMaintainer('lead', 'mikebrittain', 'Mike Brittain',
-    'mike@mikebrittain.com');
+$package->addMaintainer(
+    'lead',
+    'mikebrittain',
+    'Mike Brittain',
+    'mike@mikebrittain.com'
+);
 
-$package->addReplacement('scripts/sqs', 'pear-config',
-    '@php-bin@', 'php_bin');
+$package->addReplacement(
+    'scripts/sqs',
+    'pear-config',
+    '@php-bin@',
+    'php_bin'
+);
 
-$package->addReplacement('scripts/sqs.bat', 'pear-config',
-    '@php-bin@', 'php_bin');
+$package->addReplacement(
+    'scripts/sqs.bat',
+    'pear-config',
+    '@php-bin@',
+    'php_bin'
+);
 
-$package->addReplacement('scripts/sqs.bat', 'pear-config',
-    '@bin-dir@', 'bin_dir');
+$package->addReplacement(
+    'scripts/sqs.bat',
+    'pear-config',
+    '@bin-dir@',
+    'bin_dir'
+);
 
-$package->addReplacement('scripts/sqs.bat', 'pear-config',
-    '@php-dir@', 'php_dir');
+$package->addReplacement(
+    'scripts/sqs.bat',
+    'pear-config',
+    '@php-dir@',
+    'php_dir'
+);
 
-$package->addReplacement('Services/Amazon/SQS/CLI.php', 'package-info',
-    '@package-version@', 'version');
+$package->addReplacement(
+    'Services/Amazon/SQS/CLI.php',
+    'package-info',
+    '@package-version@',
+    'version'
+);
 
-$package->addReplacement('Services/Amazon/SQS/CLI.php', 'package-info',
-    '@package-name@', 'name');
+$package->addReplacement(
+    'Services/Amazon/SQS/CLI.php',
+    'package-info',
+    '@package-name@',
+    'name'
+);
 
-$package->addReplacement('Services/Amazon/SQS.php', 'package-info',
-    '@api-version@', 'api-version');
+$package->addReplacement(
+    'Services/Amazon/SQS.php',
+    'package-info',
+    '@api-version@',
+    'api-version'
+);
 
-$package->addReplacement('Services/Amazon/SQS.php', 'package-info',
-    '@name@', 'name');
+$package->addReplacement(
+    'Services/Amazon/SQS.php',
+    'package-info',
+    '@name@',
+    'name'
+);
 
 $package->addWindowsEol('scripts/sqs.bat');
 $package->addWindowsEol('cfg/sqs-win.ini');
 
 $package->setPhpDep('5.2.1');
 
-$package->addPackageDepWithChannel('required', 'PEAR',
-    'pear.php.net');
+$package->addPackageDepWithChannel(
+    'required',
+    'PEAR',
+    'pear.php.net'
+);
 
-$package->addPackageDepWithChannel('required', 'Console_Getopt',
-    'pear.php.net');
+$package->addPackageDepWithChannel(
+    'required',
+    'Console_CommandLine',
+    'pear.php.net'
+    /* TODO: version */
+);
 
-$package->addPackageDepWithChannel('required', 'Crypt_HMAC2',
-    'pear.php.net', '0.2.1');
+$package->addPackageDepWithChannel(
+    'required',
+    'Crypt_HMAC2',
+    'pear.php.net',
+    '0.2.1'
+);
 
-$package->addPackageDepWithChannel('required', 'Net_URL2',
-    'pear.php.net', '0.2.0');
+$package->addPackageDepWithChannel(
+    'required',
+    'Net_URL2',
+    'pear.php.net',
+    '0.2.0'
+);
 
-$package->addPackageDepWithChannel('required', 'HTTP_Request2',
-    'pear.php.net', '0.1.0');
+$package->addPackageDepWithChannel(
+    'required',
+    'HTTP_Request2',
+    'pear.php.net',
+    '0.1.0'
+);
 
 $package->setPearInstallerDep('1.7.0');
 $package->generateContents();
