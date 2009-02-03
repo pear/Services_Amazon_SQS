@@ -222,6 +222,8 @@ class Services_Amazon_SQS_CLI
             'delete',
             'help',
             'list',
+            'send',
+            'receive',
             'version'
         );
 
@@ -285,18 +287,16 @@ class Services_Amazon_SQS_CLI
             if ($argument == '') {
                 echo 'No queue name specified.', PHP_EOL;
                 exit(1);
-            } else {
-                $this->_createQueue($argument);
             }
+            $this->_createQueue($argument);
             break;
 
         case 'delete':
             if ($argument == '') {
                 echo 'No queue URI specified.', PHP_EOL;
                 exit(1);
-            } else {
-                $this->_deleteQueue($argument);
             }
+            $this->_deleteQueue($argument);
             break;
 
         case 'help':
@@ -305,6 +305,22 @@ class Services_Amazon_SQS_CLI
 
         case 'list':
             $this->_listQueues($argument);
+            break;
+
+        case 'send':
+            if ($argument == '') {
+                echo 'No queue URI specified.', PHP_EOL;
+                exit(1);
+            }
+            $this->_send($argument);
+            break;
+
+        case 'receive':
+            if ($argument == '') {
+                echo 'No queue URI specified.', PHP_EOL;
+                exit(1);
+            }
+            $this->_receive($argument);
             break;
 
         case 'version':
@@ -339,6 +355,12 @@ class Services_Amazon_SQS_CLI
                 break;
             case 'list':
                 $this->_helpList();
+                break;
+            case 'send':
+                $this->_helpSend();
+                break;
+            case 'receive':
+                $this->_helpReceive();
                 break;
             case 'version':
                 $this->_helpVersion();
@@ -375,6 +397,8 @@ class Services_Amazon_SQS_CLI
             '  delete   Deletes an existing queue by the specified URI.',
             PHP_EOL,
             '  list     Lists avaiable queues.', PHP_EOL,
+            '  send     Sends a message to the specified queue.', PHP_EOL,
+            '  receive  Receives a message from the specified queue.', PHP_EOL,
             '  version  Displays version information.', PHP_EOL,
             PHP_EOL,
             'Options:', PHP_EOL,
@@ -436,6 +460,49 @@ class Services_Amazon_SQS_CLI
             PHP_EOL,
             'Lists available queues. If a prefix is specified, only queues ',
             'beginning with the specified prefix are listed.', PHP_EOL,
+            PHP_EOL;
+    }
+
+    // }}}
+    // {{{ _helpSend()
+
+    /**
+     * Displays help for the <i>send</i> command
+     *
+     * @return void
+     */
+    private function _helpSend()
+    {
+        echo
+            'sqs send <queue-uri>', PHP_EOL,
+            PHP_EOL,
+            'Sends input from STDIN to the specified queue. The resulting ',
+            'message identifier is displayed on STDOUT.', PHP_EOL,
+            PHP_EOL;
+    }
+
+    // }}}
+    // {{{ _helpReceive()
+
+    /**
+     * Displays help for the <i>receive</i> command
+     *
+     * @return void
+     */
+    private function _helpReceive()
+    {
+        echo
+            'sqs receive [options] <queue-uri>', PHP_EOL,
+            PHP_EOL,
+            'Receives a message from the specified queue. The message body ',
+            'is displayed on STDOUT. If no message is received, nothing is ',
+            'displayed on STDOUT.', PHP_EOL,
+            PHP_EOL,
+            'Options:', PHP_EOL,
+            '  -d, --delete         Deletes the message after receiving it.',
+            PHP_EOL,
+            '  -t, --timeout=value  Sets the visibility timeout for the ',
+            'received message', PHP_EOL,
             PHP_EOL;
     }
 
@@ -558,6 +625,67 @@ class Services_Amazon_SQS_CLI
 
         echo 'Queue has been deleted. It may take up to 60 seconds for the ',
             'queue list to reflect this change.', PHP_EOL;
+    }
+
+    // }}}
+    // {{{ _send()
+
+   /**
+    * Sends a message from STDIN to the specified queue
+    *
+    * @param string $url the queue URL of the queue to which the message is
+    *                    sent.
+    *
+    * @return void
+    */
+    private function _send($url)
+    {
+        $queue = new Services_Amazon_SQS_Queue($url,
+            $this->_accessKey, $this->_secretAccessKey);
+
+        $messageBody = file_get_contents('php://stdin');
+
+        try {
+            $messageId = $queue->send($messageBody);
+        } catch (Services_Amazon_SQS_Exception $e) {
+            $this->_handleException($e);
+        }
+
+        echo $messageId, PHP_EOL;
+    }
+
+    // }}}
+    // {{{ _receive()
+
+   /**
+    * Receives a message from the specified queue and displays its body on
+    * STDOUT
+    *
+    * @param string  $url     the queue URL of the queue from which to receive
+    *                         the message.
+    * @param boolean $delete  optional. Whether or not to delete the message
+    *                         after receiving it. Defaults to false.
+    * @param integer $timeout optional. The visibility timeout of the received
+    *                         message. Defaults to 30 seconds.
+    *
+    * @return void
+    */
+    private function _receive($url, $delete = false, $timeout = 30)
+    {
+        $queue = new Services_Amazon_SQS_Queue($url,
+            $this->_accessKey, $this->_secretAccessKey);
+
+        try {
+            $messages = $queue->receive(1, $timeout);
+            if (count($messages) > 0) {
+                if ($delete) {
+                    $queue->delete($messages[0]['handle']);
+                }
+                echo $messages[0]['body'];
+            }
+        } catch (Services_Amazon_SQS_Exception $e) {
+            $this->_handleException($e);
+        }
     }
 
     // }}}
