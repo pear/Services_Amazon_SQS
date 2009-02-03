@@ -228,8 +228,10 @@ class Services_Amazon_SQS_CLI
         );
 
         if (!in_array($command, $validCommands)) {
-            printf('Command `%s\' is not valid. Try `sqs help\'.',
-                $command);
+            printf(
+                'Command `%s\' is not valid. Try `sqs help\'.',
+                $command
+            );
 
             echo PHP_EOL;
             exit(1);
@@ -366,8 +368,10 @@ class Services_Amazon_SQS_CLI
                 $this->_helpVersion();
                 break;
             default:
-                printf('Command `%s\' is not valid. Try `sqs help\'.',
-                    $argument);
+                printf(
+                    'Command `%s\' is not valid. Try `sqs help\'.',
+                    $argument
+                );
 
                 echo PHP_EOL;
                 exit(1);
@@ -630,14 +634,14 @@ class Services_Amazon_SQS_CLI
     // }}}
     // {{{ _send()
 
-   /**
-    * Sends a message from STDIN to the specified queue
-    *
-    * @param string $url the queue URL of the queue to which the message is
-    *                    sent.
-    *
-    * @return void
-    */
+    /**
+     * Sends a message from STDIN to the specified queue
+     *
+     * @param string $url the queue URL of the queue to which the message is
+     *                    sent.
+     *
+     * @return void
+     */
     private function _send($url)
     {
         $queue = new Services_Amazon_SQS_Queue($url,
@@ -657,19 +661,19 @@ class Services_Amazon_SQS_CLI
     // }}}
     // {{{ _receive()
 
-   /**
-    * Receives a message from the specified queue and displays its body on
-    * STDOUT
-    *
-    * @param string  $url     the queue URL of the queue from which to receive
-    *                         the message.
-    * @param boolean $delete  optional. Whether or not to delete the message
-    *                         after receiving it. Defaults to false.
-    * @param integer $timeout optional. The visibility timeout of the received
-    *                         message. Defaults to 30 seconds.
-    *
-    * @return void
-    */
+    /**
+     * Receives a message from the specified queue and displays its body on
+     * STDOUT
+     *
+     * @param string  $url     the queue URL of the queue from which to receive
+     *                         the message.
+     * @param boolean $delete  optional. Whether or not to delete the message
+     *                         after receiving it. Defaults to false.
+     * @param integer $timeout optional. The visibility timeout of the received
+     *                         message. Defaults to 30 seconds.
+     *
+     * @return void
+     */
     private function _receive($url, $delete = false, $timeout = 30)
     {
         $queue = new Services_Amazon_SQS_Queue($url,
@@ -746,8 +750,10 @@ class Services_Amazon_SQS_CLI
 
         if (!file_exists($configFile)) {
             echo PHP_EOL;
-            printf('ERROR: Configuration file `%s\' was not found.',
-                $configFile);
+            printf(
+                'ERROR: Configuration file `%s\' was not found.',
+                $configFile
+            );
 
             echo PHP_EOL, PHP_EOL;
             exit(1);
@@ -755,23 +761,29 @@ class Services_Amazon_SQS_CLI
 
         if (!is_readable($configFile)) {
             echo PHP_EOL;
-            printf('ERROR: Configuration file `%s\' is not readable.',
-                $configFile);
+            printf(
+                'ERROR: Configuration file `%s\' is not readable.',
+                $configFile
+            );
 
             echo PHP_EOL, PHP_EOL;
             exit(1);
         }
 
-        $handler = set_error_handler(array(__CLASS__, '_handleParseError'),
-            E_WARNING);
+        $handler = set_error_handler(
+            array(__CLASS__, '_handleParseError'),
+            E_WARNING
+        );
 
         $config = parse_ini_file($configFile);
         restore_error_handler(E_WARNING);
 
         if ($config === false) {
             echo PHP_EOL;
-            printf('ERROR: Could not parse configuration file `%s\'.',
-                $configFile);
+            printf(
+                'ERROR: Could not parse configuration file `%s\'.',
+                $configFile
+            );
 
             echo PHP_EOL, PHP_EOL;
             exit(1);
@@ -787,10 +799,12 @@ class Services_Amazon_SQS_CLI
         // make sure access key is set
         if ($this->_accessKey == '') {
             echo PHP_EOL;
-            printf('ERROR: Access key id is missing from configuration file. ' .
+            printf(
+                'ERROR: Access key id is missing from configuration file. ' .
                 'Please set your Amazon Web Services access key id in the ' .
                 '`access_key\' field in the file `%s\'.',
-                $configFile);
+                $configFile
+            );
 
             echo PHP_EOL, PHP_EOL;
             exit(1);
@@ -799,11 +813,13 @@ class Services_Amazon_SQS_CLI
         // make sure secret access key is set
         if ($this->_secretAccessKey == '') {
             echo PHP_EOL;
-            printf('ERROR: Secret access key id is missing from ' .
+            printf(
+                'ERROR: Secret access key id is missing from ' .
                 'configuration file. Please set your Amazon Web Services ' .
                 'secret access key id in the `secret_access_key\' field in ' .
                 'the file `%s\'.',
-                $configFile);
+                $configFile
+            );
 
             echo PHP_EOL, PHP_EOL;
             exit(1);
@@ -862,8 +878,11 @@ class Services_Amazon_SQS_CLI
         $matches = array();
         if (preg_match($exp, $errstr, $matches) === 1) {
             echo PHP_EOL;
-            printf('ERROR: Error parsing configuration file `%s\' on line %s.',
-                $matches[1], $matches[2]);
+            printf(
+                'ERROR: Error parsing configuration file `%s\' on line %s.',
+                $matches[1],
+                $matches[2]
+            );
 
             echo PHP_EOL, PHP_EOL;
         } else {

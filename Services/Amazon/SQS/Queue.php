@@ -105,8 +105,8 @@ class Services_Amazon_SQS_Queue extends Services_Amazon_SQS
      *        object is created automatically.
      */
     public function __construct($queueUrl, $accessKey, $secretAccessKey = '',
-        HTTP_Request2 $request = null)
-    {
+        HTTP_Request2 $request = null
+    ) {
         parent::__construct($accessKey, $secretAccessKey, $request);
         $this->_queueUrl = $queueUrl;
     }

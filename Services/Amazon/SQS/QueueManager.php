@@ -151,8 +151,8 @@ class Services_Amazon_SQS_QueueManager extends Services_Amazon_SQS
         $params['Action']    = 'CreateQueue';
         $params['QueueName'] = $name;
 
-        $params['DefaultVisibilityTimeout'] =
-            ($timeout !== null) ? $timeout : 30;
+        $params['DefaultVisibilityTimeout']
+            = ($timeout !== null) ? $timeout : 30;
 
         try {
             $response = $this->sendRequest($params);

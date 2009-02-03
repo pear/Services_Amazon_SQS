@@ -28,6 +28,8 @@
  *   is distributed under the Apache 2.0 license
  *   (http://aws.amazon.com/apache2.0).
  *
+ *   See {@link http://developer.amazonwebservices.com/connect/entry.jspa?externalID=1287&categoryID=190}
+ *
  * @category  Services
  * @package   Services_Amazon_SQS
  * @author    Mike Brittain <mike@mikebrittain.com>
@@ -156,8 +158,8 @@ abstract class Services_Amazon_SQS
      *        object is created automatically.
      */
     public function __construct($accessKey, $secretAccessKey = '',
-        HTTP_Request2 $request = null)
-    {
+        HTTP_Request2 $request = null
+    ) {
         // set account object
         if ($accessKey instanceof Services_Amazon_SQS_Account) {
             $this->account = $accessKey;
@@ -238,9 +240,11 @@ abstract class Services_Amazon_SQS
              */
             $request = clone $this->request;
 
-            $request->setConfig(array(
-                'connect_timeout' => self::HTTP_TIMEOUT
-            ));
+            $request->setConfig(
+                array(
+                    'connect_timeout' => self::HTTP_TIMEOUT
+                )
+            );
 
             $request->setUrl($url);
             $request->setMethod(HTTP_Request2::METHOD_POST);
@@ -255,6 +259,19 @@ abstract class Services_Amazon_SQS
             throw new Services_Amazon_SQS_HttpException($message,
                 $e->getCode());
         }
+
+/*        printf(
+            "HTTP/%s %s %s\n",
+            $httpResponse->getVersion(),
+            $httpResponse->getStatus(),
+            $httpResponse->getReasonPhrase()
+        );
+
+        foreach ($httpResponse->getHeader() as $name => $value) {
+            echo $name, ": ", $value, "\n";
+        }
+
+        echo $httpResponse->getBody();*/
 
         $response = new Services_Amazon_SQS_Response($httpResponse);
 
@@ -395,9 +412,11 @@ abstract class Services_Amazon_SQS
         // encode parameters
         $encodedParameters = '';
         foreach ($parameters as $key => $value) {
-            $encodedParameters .= sprintf('&%s=%s',
+            $encodedParameters .= sprintf(
+                '&%s=%s',
                 $this->_urlencode($key),
-                $this->_urlencode($value));
+                $this->_urlencode($value)
+            );
         }
 
         // remove leading ampersand
@@ -412,11 +431,13 @@ abstract class Services_Amazon_SQS
         $path   = ($path === '') ? '/' : $path;
 
         // build the string to sign
-        $data = sprintf("%s\n%s\n%s\n%s",
+        $data = sprintf(
+            "%s\n%s\n%s\n%s",
             $method,
             strtolower($host),
             $path,
-            $encodedParameters);
+            $encodedParameters
+        );
 
         return $data;
     }

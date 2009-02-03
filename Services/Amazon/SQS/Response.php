@@ -135,8 +135,10 @@ class Services_Amazon_SQS_Response
                 $this->_xpath = false;
             } else {
                 $this->_xpath = new DOMXPath($document);
-                $this->_xpath->registerNamespace('sqs',
-                    self::XML_NAMESPACE);
+                $this->_xpath->registerNamespace(
+                    'sqs',
+                    self::XML_NAMESPACE
+                );
             }
         }
 
