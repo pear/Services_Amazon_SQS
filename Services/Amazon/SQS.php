@@ -201,7 +201,7 @@ abstract class Services_Amazon_SQS
     // {{{ sendRequest()
 
     /**
-     * Sends a HTTP request to the queue service using cURL
+     * Sends a HTTP request to the queue service
      *
      * The supplied <kbd>$params</kbd> array should contain only the specific
      * parameters for the request type and should not include account,
