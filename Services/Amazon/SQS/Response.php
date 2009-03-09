@@ -3,7 +3,7 @@
 /* vim: set expandtab tabstop=4 shiftwidth=4 softtabstop=4: */
 
 /**
- * Contains a high-level Amazin Simple Queue Service (SQS) response class
+ * Contains a high-level Amazon Simple Queue Service (SQS) response class
  *
  * PHP version 5
  *
