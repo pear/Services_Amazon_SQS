@@ -85,7 +85,7 @@ $description =
     "Commands:\n" .
     " create  Creates a new queue with the specified name.\n" .
     " delete  Deletes an existing queue by the specified URI.\n" .
-    " list    Lists avaiable queues.\n" .
+    " list    Lists available queues.\n" .
     " send    Sends a message to the specified queue.\n" .
     " receive Receives a message from the specified queue.\n" .
     " version Displays version information." .

@@ -400,7 +400,7 @@ class Services_Amazon_SQS_CLI
             '  create   Creates a new queue with the specified name.', PHP_EOL,
             '  delete   Deletes an existing queue by the specified URI.',
             PHP_EOL,
-            '  list     Lists avaiable queues.', PHP_EOL,
+            '  list     Lists available queues.', PHP_EOL,
             '  send     Sends a message to the specified queue.', PHP_EOL,
             '  receive  Receives a message from the specified queue.', PHP_EOL,
             '  version  Displays version information.', PHP_EOL,
