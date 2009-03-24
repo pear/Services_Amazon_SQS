@@ -192,9 +192,10 @@ class Services_Amazon_SQS_CLI
         if (PEAR::isError($opts)) {
             $message = $opts->getMessage();
             $message = preg_replace('/^Console_Getopt: /', '', $message);
-            echo PHP_EOL;
-            printf('ERROR: %s. Try `sqs help\'.', $message);
-            echo PHP_EOL, PHP_EOL;
+            $this->_output(
+                $message . " Try \xe2\x80\x98sqs help\xe2\x80\x99.\n",
+                STDERR
+            );
             exit(1);
         }
 
@@ -228,12 +229,11 @@ class Services_Amazon_SQS_CLI
         );
 
         if (!in_array($command, $validCommands)) {
-            printf(
-                'Command `%s\' is not valid. Try `sqs help\'.',
-                $command
+            $this->_output(
+                "Command \xe2\x80\x98" . $command . "\xe2\x80\x99 is not " .
+                "valid. Try \xe2\x80\x98sqs help\xe2\x80\x99.\n",
+                STDERR
             );
-
-            echo PHP_EOL;
             exit(1);
         }
 
@@ -287,7 +287,7 @@ class Services_Amazon_SQS_CLI
         switch ($command) {
         case 'create':
             if ($argument == '') {
-                echo 'No queue name specified.', PHP_EOL;
+                $this->_output("No queue name specified.\n", STDERR);
                 exit(1);
             }
             $this->_createQueue($argument);
@@ -295,7 +295,7 @@ class Services_Amazon_SQS_CLI
 
         case 'delete':
             if ($argument == '') {
-                echo 'No queue URI specified.', PHP_EOL;
+                $this->_output("No queue URI specified.\n", STDERR);
                 exit(1);
             }
             $this->_deleteQueue($argument);
@@ -311,7 +311,7 @@ class Services_Amazon_SQS_CLI
 
         case 'send':
             if ($argument == '') {
-                echo 'No queue URI specified.', PHP_EOL;
+                $this->_output("No queue URI specified.\n", STDERR);
                 exit(1);
             }
             $this->_send($argument);
@@ -319,7 +319,7 @@ class Services_Amazon_SQS_CLI
 
         case 'receive':
             if ($argument == '') {
-                echo 'No queue URI specified.', PHP_EOL;
+                $this->_output("No queue URI specified.\n", STDERR);
                 exit(1);
             }
             $this->_receive($argument);
@@ -368,12 +368,11 @@ class Services_Amazon_SQS_CLI
                 $this->_helpVersion();
                 break;
             default:
-                printf(
-                    'Command `%s\' is not valid. Try `sqs help\'.',
-                    $argument
+                $this->_output(
+                    "Command \xe2\x80\x98" . $argument . "\xe2\x80\x99 is " .
+                    "not valid. Try \xe2\x80\x98sqs help\xe2\x80\x99.\n",
+                    STDERR
                 );
-
-                echo PHP_EOL;
                 exit(1);
             }
         }
@@ -389,28 +388,29 @@ class Services_Amazon_SQS_CLI
      */
     private function _help()
     {
-        echo
-            'A command-line interface to Amazon\'s Simple Queue Service.',
-            PHP_EOL,
-            PHP_EOL,
-            'Usage:', PHP_EOL,
-            '  sqs [options] command [args]', PHP_EOL,
-            PHP_EOL,
-            'Commands:', PHP_EOL,
-            '  create   Creates a new queue with the specified name.', PHP_EOL,
-            '  delete   Deletes an existing queue by the specified URI.',
-            PHP_EOL,
-            '  list     Lists available queues.', PHP_EOL,
-            '  send     Sends a message to the specified queue.', PHP_EOL,
-            '  receive  Receives a message from the specified queue.', PHP_EOL,
-            '  version  Displays version information.', PHP_EOL,
-            PHP_EOL,
-            'Options:', PHP_EOL,
-            '  -c, --config=file  Find configuration in `file\'.', PHP_EOL,
-            PHP_EOL,
-            'Type `sqs help <command>\' to get the help for the specified ',
-            'command.', PHP_EOL,
-            PHP_EOL;
+        $this->_output(
+            "A command-line interface to Amazon\xe2\x80\x99s Simple Queue " .
+            "Service.\n" .
+            "\n" .
+            "Usage:\n" .
+            "  sqs [options] command [args]\n" .
+            "\n" .
+            "Commands:\n" .
+            "  create   Creates a new queue with the specified name.\n" .
+            "  delete   Deletes an existing queue by the specified URI.\n" .
+            "  list     Lists available queues.\n" .
+            "  send     Sends a message to the specified queue.\n" .
+            "  receive  Receives a message from the specified queue.\n" .
+            "  version  Displays version information.\n" .
+            "\n" .
+            "Options:\n" .
+            "  -c, --config=file  Find configuration in " .
+            "\xe2\x80\x98file\xe2\x80\x99.\n" .
+            "\n" .
+            "Type \xe2\x80\x98sqs help <command>\xe2\x80\x99 to get help " .
+            "for the specified command.\n" .
+            "\n"
+        );
     }
 
     // }}}
@@ -423,12 +423,13 @@ class Services_Amazon_SQS_CLI
      */
     private function _helpCreate()
     {
-        echo
-            'sqs create <queue-name>', PHP_EOL,
-            PHP_EOL,
-            'Creates a new queue with the specified name. The queue may take ',
-            'up to 60 seconds to become available.', PHP_EOL,
-            PHP_EOL;
+        $this->_output(
+            "sqs create <queue-name>\n" .
+            "\n" .
+            "Creates a new queue with the specified name. The queue may " .
+            "take up to 60 seconds to become available.\n" .
+            "\n"
+        );
     }
 
     // }}}
@@ -441,12 +442,13 @@ class Services_Amazon_SQS_CLI
      */
     private function _helpDelete()
     {
-        echo
-            'sqs delete <queue-uri>', PHP_EOL,
-            PHP_EOL,
-            'Deletes a queue with the specified URI. The queue may take up ',
-            'to 60 seconds to become unavailable.', PHP_EOL,
-            PHP_EOL;
+        $this->_output(
+            "sqs delete <queue-uri>\n" .
+            "\n" .
+            "Deletes a queue with the specified URI. The queue may take up " .
+            "to 60 seconds to become unavailable.\n" .
+            "\n"
+        );
     }
 
     // }}}
@@ -459,12 +461,13 @@ class Services_Amazon_SQS_CLI
      */
     private function _helpList()
     {
-        echo
-            'sqs list [prefix]', PHP_EOL,
-            PHP_EOL,
-            'Lists available queues. If a prefix is specified, only queues ',
-            'beginning with the specified prefix are listed.', PHP_EOL,
-            PHP_EOL;
+        $this->_output(
+            "sqs list [prefix]\n" .
+            "\n" .
+            "Lists available queues. If a prefix is specified, only queues " .
+            "beginning with the specified prefix are listed.\n" .
+            "\n"
+        );
     }
 
     // }}}
@@ -477,12 +480,13 @@ class Services_Amazon_SQS_CLI
      */
     private function _helpSend()
     {
-        echo
-            'sqs send <queue-uri>', PHP_EOL,
-            PHP_EOL,
-            'Sends input from STDIN to the specified queue. The resulting ',
-            'message identifier is displayed on STDOUT.', PHP_EOL,
-            PHP_EOL;
+        $this->_output(
+            "sqs send <queue-uri>\n" .
+            "\n" .
+            "Sends input from STDIN to the specified queue. The resulting " .
+            "message identifier is displayed on STDOUT.\n" .
+            "\n"
+        );
     }
 
     // }}}
@@ -495,19 +499,20 @@ class Services_Amazon_SQS_CLI
      */
     private function _helpReceive()
     {
-        echo
-            'sqs receive [options] <queue-uri>', PHP_EOL,
-            PHP_EOL,
-            'Receives a message from the specified queue. The message body ',
-            'is displayed on STDOUT. If no message is received, nothing is ',
-            'displayed on STDOUT.', PHP_EOL,
-            PHP_EOL,
-            'Options:', PHP_EOL,
-            '  -d, --delete         Deletes the message after receiving it.',
-            PHP_EOL,
-            '  -t, --timeout=value  Sets the visibility timeout for the ',
-            'received message', PHP_EOL,
-            PHP_EOL;
+        $this->_output(
+            "sqs receive [options] <queue-uri>\n" .
+            "\n" .
+            "Receives a message from the specified queue. The message body " .
+            "is displayed on STDOUT. If no message is received, nothing is " .
+            "displayed on STDOUT.\n" .
+            "\n" .
+            "Options:\n" .
+            "  -d, --delete         Deletes the message after receiving it. " .
+            "\n" .
+            "  -t, --timeout=value  Sets the visibility timeout for the " .
+            "received message.\n" .
+            "\n"
+        );
     }
 
     // }}}
@@ -520,11 +525,12 @@ class Services_Amazon_SQS_CLI
      */
     private function _helpVersion()
     {
-        echo
-            'sqs version', PHP_EOL,
-            PHP_EOL,
-            'Displays version information and exits.', PHP_EOL,
-            PHP_EOL;
+        $this->_output(
+            "sqs version\n" .
+            "\n" .
+            "Displays version information and exits.\n" .
+            "\n"
+        );
     }
 
     // }}}
@@ -550,7 +556,7 @@ class Services_Amazon_SQS_CLI
         }
 
         if (count($queues) === 0) {
-            echo 'No queues available.', PHP_EOL;
+            $this->_output("No queues available.\n", STDERR);
         } else {
 
             // getting queue attributes can take some time so collect all
@@ -571,14 +577,24 @@ class Services_Amazon_SQS_CLI
                 $rows[] = $row;
             }
 
-            $format = '%-55s  %-10s  %-10s' . PHP_EOL;
+            $format = "%-55s  %-10s  %-10s\n";
 
             // display header
-            printf($format, '', 'ITEMS', 'VIS.');
-            printf($format, 'QUEUE NAME', '(APPROX.)', 'TIMEOUT');
+            $this->_output(sprintf($format, '', 'ITEMS', 'VIS.'));
+            $this->_output(
+                sprintf($format, 'QUEUE NAME', '(APPROX.)', 'TIMEOUT')
+            );
 
+            // display rows
             foreach ($rows as $row) {
-                printf($format, $row['name'], $row['number'], $row['timeout']);
+                $this->_output(
+                    sprintf(
+                        $format,
+                        $row['name'],
+                        $row['number'],
+                        $row['timeout']
+                    )
+                );
             }
         }
     }
@@ -603,8 +619,10 @@ class Services_Amazon_SQS_CLI
             $this->_handleException($e);
         }
 
-        echo 'New queue has been added. It may take up to 60 seconds for the ',
-            'new queue to appear in the list of queues.', PHP_EOL;
+        $this->_output(
+            "New queue has been added. It may take up to 60 seconds for the " .
+            "new queue to appear in the list of queues.\n"
+        );
     }
 
     // }}}
@@ -627,8 +645,10 @@ class Services_Amazon_SQS_CLI
             $this->_handleException($e);
         }
 
-        echo 'Queue has been deleted. It may take up to 60 seconds for the ',
-            'queue list to reflect this change.', PHP_EOL;
+        $this->_output(
+            "Queue has been deleted. It may take up to 60 seconds for the " .
+            "queue list to reflect this change.\n"
+        );
     }
 
     // }}}
@@ -655,7 +675,7 @@ class Services_Amazon_SQS_CLI
             $this->_handleException($e);
         }
 
-        echo $messageId, PHP_EOL;
+        $this->_output($messageId . "\n");
     }
 
     // }}}
@@ -685,6 +705,7 @@ class Services_Amazon_SQS_CLI
                 if ($delete) {
                     $queue->delete($messages[0]['handle']);
                 }
+                // display exactly as returned; do not run through _output().
                 echo $messages[0]['body'];
             }
         } catch (Services_Amazon_SQS_Exception $e) {
@@ -702,8 +723,9 @@ class Services_Amazon_SQS_CLI
      */
     private function _displayVersion()
     {
-        echo $_SERVER['SCRIPT_NAME'], ' version ', $this->_getVersion(),
-            PHP_EOL;
+        $this->_output(
+            $_SERVER['SCRIPT_NAME'] . " version " . $this->_getVersion() . "\n"
+        );
     }
 
     // }}}
@@ -749,24 +771,20 @@ class Services_Amazon_SQS_CLI
         }
 
         if (!file_exists($configFile)) {
-            echo PHP_EOL;
-            printf(
-                'ERROR: Configuration file `%s\' was not found.',
-                $configFile
+            $this->_output(
+                "Configuration file \xe2\x80\x98" . $configFile .
+                "\xe2\x80\x99 was not found.\n",
+                STDERR
             );
-
-            echo PHP_EOL, PHP_EOL;
             exit(1);
         }
 
         if (!is_readable($configFile)) {
-            echo PHP_EOL;
-            printf(
-                'ERROR: Configuration file `%s\' is not readable.',
-                $configFile
+            $this->_output(
+                "Configuration file \xe2\x80\x98" . $configFile .
+                "\xe2\x80\x99 is not readable.\n",
+                STDERR
             );
-
-            echo PHP_EOL, PHP_EOL;
             exit(1);
         }
 
@@ -779,13 +797,11 @@ class Services_Amazon_SQS_CLI
         restore_error_handler(E_WARNING);
 
         if ($config === false) {
-            echo PHP_EOL;
-            printf(
-                'ERROR: Could not parse configuration file `%s\'.',
-                $configFile
+            $this->_output(
+                "Could not parse configuration file \xe2\x80\x98" .
+                $configFile . "\xe2\x80\x99.\n",
+                STDERR
             );
-
-            echo PHP_EOL, PHP_EOL;
             exit(1);
         }
 
@@ -798,30 +814,25 @@ class Services_Amazon_SQS_CLI
 
         // make sure access key is set
         if ($this->_accessKey == '') {
-            echo PHP_EOL;
-            printf(
-                'ERROR: Access key id is missing from configuration file. ' .
-                'Please set your Amazon Web Services access key id in the ' .
-                '`access_key\' field in the file `%s\'.',
-                $configFile
+            $this->_output(
+                "Access key id is missing from configuration file. Please " .
+                "set your Amazon Web Services access key id in the " .
+                "\xe2\x80\x98access_key\xe2\x80\x99 field in the file " .
+                "\xe2\x80\x98" . $configFile . "\xe2\x80\x99.\n",
+                STDERR
             );
-
-            echo PHP_EOL, PHP_EOL;
             exit(1);
         }
 
         // make sure secret access key is set
         if ($this->_secretAccessKey == '') {
-            echo PHP_EOL;
-            printf(
-                'ERROR: Secret access key id is missing from ' .
-                'configuration file. Please set your Amazon Web Services ' .
-                'secret access key id in the `secret_access_key\' field in ' .
-                'the file `%s\'.',
-                $configFile
+            $this->_output(
+                "Secret access key id is missing from configuration file. " .
+                "Please set your Amazon Web Services secret access key id " .
+                "in the \xe2\x80\x98secret_access_key\xe2\x80\x99 field in " .
+                "the file \xe2\x80\x98" . $configFile . "\xe2\x80\x99.\n",
+                STDERR
             );
-
-            echo PHP_EOL, PHP_EOL;
             exit(1);
         }
     }
@@ -857,7 +868,7 @@ class Services_Amazon_SQS_CLI
      */
     private function _handleException(Services_Amazon_SQS_Exception $e)
     {
-        echo PHP_EOL, 'ERROR: ', $e->getMessage(), PHP_EOL, PHP_EOL;
+        $this->_output($e->getMessage() . "\n", STDERR, false);
         exit(1);
     }
 
@@ -877,19 +888,124 @@ class Services_Amazon_SQS_CLI
         $exp     = '/Error parsing (.*?) on line (\d+)/';
         $matches = array();
         if (preg_match($exp, $errstr, $matches) === 1) {
-            echo PHP_EOL;
-            printf(
-                'ERROR: Error parsing configuration file `%s\' on line %s.',
-                $matches[1],
-                $matches[2]
+
+            $this->_output(
+                "Error parsing configuration file \xe2\x80\x98" . $matches[1] .
+                "\xe2\x80\x99 on line " . $matches[2] . "\n",
+                STDERR
             );
 
-            echo PHP_EOL, PHP_EOL;
         } else {
-            echo PHP_EOL, 'ERROR: ', trim($errstr), PHP_EOL, PHP_EOL;
+            $this->_output(trim($errstr) . "\n", STDERR, false);
         }
 
         exit(1);
+    }
+
+    // }}}
+    // {{{ _getConsoleEncoding()
+
+    /**
+     * Detects the character encoding of the console
+     *
+     * @return string the character encoding of the console. If the character
+     *                encoding could not be detected, ISO-8859-1 is returned.
+     */
+    private function _getConsoleEncoding()
+    {
+        // cache the results
+        static $encoding = null;
+
+        if ($encoding === null) {
+
+            if (function_exists('nl_langinfo') && is_callable('nl_langinfo')) {
+
+                // system supports nl_langinfo, use it
+                $encoding = nl_langinfo(CODESET);
+
+            } else {
+
+                // try to detect encoding from locale identifier
+                $lcCtype  = null;
+                $lcAll    = setlocale(LC_ALL, '0');
+                $lcAllExp = explode(';', $lcAll);
+
+                // get LC_CTYPE from the locale info if it exists
+                if (count($lcAllExp) === 1) {
+                    $lcCtype = reset($lcAllExp);
+                } else {
+                    foreach ($lcAllExp as $lc) {
+                        if (strncmp($lc, 'LC_CTYPE', 8) === 0) {
+                            $lcCtype = $lc;
+                            break;
+                        }
+                    }
+                }
+
+                // handle locales like 'en_US.UTF-8'
+                if ($lcCtype !== null) {
+                    $lcCtypeExp = explode('.', $lcCtype, 2);
+                    if (count($lcCtypeExp) === 2) {
+                        $encoding = $lcCtypeExp[1];
+                    }
+                }
+
+            }
+
+            // we did not detect an encoding, use ISO-8859-1
+            if ($encoding === null) {
+                $encoding = 'ISO-8859-1';
+            }
+
+        }
+
+        return $encoding;
+    }
+
+    // }}}
+    // {{{ _output()
+
+    /**
+     * Outputs text to an output stream
+     *
+     * @param string   $text   the text to output.
+     * @param resource $stream optional. The output stream to use. If not
+     *                         specified, STDOUT is used.
+     * @param boolean  $utf8   optional. Whether or not the input text is UTF-8
+     *                         encoded. If the console does not support UTF-8,
+     *                         text is decoded to ASCII before display.
+     *
+     * @return void
+     */
+    private function _output($text, $stream = null, $utf8 = true)
+    {
+        if ($stream === null) {
+            $stream = STDOUT;
+        }
+
+        // UTF-8 characters used in strings
+        static $search = array(
+            "\xe2\x80\x98",
+            "\xe2\x80\x99"
+        );
+
+        // ASCII equivalents
+        static $replace = array(
+            "'",
+            "'"
+        );
+
+        // get system newlines
+        $text = str_replace("\n", PHP_EOL, $text);
+
+        // convert to ASCII if input is UTF-8 and encoding is not UTF-8
+        $encoding = $this->_getConsoleEncoding();
+        if ($utf8 && preg_match('/^utf-?8$/i', $encoding) === 0) {
+            $text = str_replace($search, $replace, $text);
+        }
+
+        // send text to stream
+        fwrite($stream, $text);
     }
 
     // }}}
