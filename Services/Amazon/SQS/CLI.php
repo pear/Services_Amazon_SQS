@@ -466,6 +466,9 @@ class Services_Amazon_SQS_CLI
             "\n" .
             "Lists available queues. If a prefix is specified, only queues " .
             "beginning with the specified prefix are listed.\n" .
+            "\n" .
+            "Options:\n" .
+            "  -h, --no-headers Don\xe2\x80\x99t show list headers\n" .
             "\n"
         );
     }
@@ -539,13 +542,16 @@ class Services_Amazon_SQS_CLI
     /**
      * Lists SQS queues
      *
-     * @param string $prefix optional. Only list queues whose name begins with
-     *                       the given prefix. If not specified, all queues are
-     *                       returned.
+     * @param string  $prefix      optional. Only list queues whose name begins
+     *                             with the given prefix. If not specified, all
+     *                             queues are returned.
+     * @param boolean $showHeaders optional. Whether or not to show list headers
+     *                             in output. If not specified, list headers are
+     *                             shown.
      *
      * @return void
      */
-    private function _listQueues($prefix = '')
+    private function _listQueues($prefix = '', $showHeaders = true)
     {
         $manager = $this->_getQueueManager();
 
@@ -579,11 +585,13 @@ class Services_Amazon_SQS_CLI
 
             $format = "%-55s  %-10s  %-10s\n";
 
-            // display header
-            $this->_output(sprintf($format, '', 'ITEMS', 'VIS.'));
-            $this->_output(
-                sprintf($format, 'QUEUE NAME', '(APPROX.)', 'TIMEOUT')
-            );
+            // display headers
+            if ($showHeaders) {
+                $this->_output(sprintf($format, '', 'ITEMS', 'VIS.'));
+                $this->_output(
+                    sprintf($format, 'QUEUE NAME', '(APPROX.)', 'TIMEOUT')
+                );
+            }
 
             // display rows
             foreach ($rows as $row) {
