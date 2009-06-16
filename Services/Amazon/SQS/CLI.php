@@ -241,6 +241,7 @@ class Services_Amazon_SQS_CLI
             break;
 
         default:
+            $this->_help($parser, $result);
             break;
         }
     }
@@ -265,7 +266,7 @@ class Services_Amazon_SQS_CLI
         if ($subCommand) {
             if (array_key_exists($subCommand, $parser->commands)) {
                 $command = $parser->commands[$subCommand];
-                $command->displayUsage();
+                $command->displayUsage(0);
             } else {
                 $this->_displayError(
                     'Command "' . $subCommand . '" is not valid. Try ' .
@@ -273,7 +274,7 @@ class Services_Amazon_SQS_CLI
                 );
             }
         } else {
-            $parser->displayUsage();
+            $parser->displayUsage(0);
         }
     }
 

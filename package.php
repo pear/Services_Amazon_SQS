@@ -66,7 +66,7 @@ $description =
     "Brittain." .
     "\n\n" .
     "This package requires PHP 5.2.1. On Red Hat flavored distributions, the " .
-    "'php-xml' package must also be installed." .
+    "\"php-xml\" package must also be installed." .
     "\n\n" .
     "There are two main ways to use this package. Firstly, it provides an " .
     "API that may be used to manage queues, and to add and remove messages " .
@@ -74,26 +74,33 @@ $description =
     "Services_Amazon_SQS_Queue classes provide these methods." .
     "\n\n" .
     "Secondly, a command-line application for managing SQS queues is " .
-    "provided. This is installed by PEAR as `sqs'. Running this command " .
+    "provided. This is installed by PEAR as \"sqs\". Running this command " .
     "produces the following output:" .
     "\n\n" .
-    "A command-line interface to Amazon's Simple Queue Service." .
+    "A command-line interface to Amazon's Simple Queue Service (SQS)." .
     "\n\n" .
     "Usage:\n" .
-    " sqs [options] command [args]" .
-    "\n\n" .
-    "Commands:\n" .
-    " create  Creates a new queue with the specified name.\n" .
-    " delete  Deletes an existing queue by the specified URI.\n" .
-    " list    Lists available queues.\n" .
-    " send    Sends a message to the specified queue.\n" .
-    " receive Receives a message from the specified queue.\n" .
-    " version Displays version information." .
+    "  /usr/bin/sqs [options]\n" .
+    "  /usr/bin/sqs [options] <command> [options] [args]" .
     "\n\n" .
     "Options:\n" .
-    " -c, --config=file Find configuration in `file'." .
+    "  -c config, --config=config  Find configuration in \"config\"." .
     "\n\n" .
-    "Type `sqs help <command>' to get the help for the specified command.";
+    "Commands:\n" .
+    "  create   Creates a new queue with the specified name. The queue may\n" .
+    "           take up to 60 seconds to become available.\n" .
+    "  delete   Deletes an existing queue by the specified URI. The queue\n" .
+    "           may take up to 60 seconds to become unavailable.\n" .
+    "  help     Displays an overview of available options and commands, or\n" .
+    "           detailed help for a specific command.\n" .
+    "  list     Lists available queues. If a prefix is specified, only\n" .
+    "           queues beginning with the specified prefix are listed.\n" .
+    "  send     Sends input from STDIN to the specified queue. The\n" .
+    "           resulting message identifier is displayed on STDOUT.\n" .
+    "  receive  Receives a message from the specified queue. The message\n" .
+    "           body is displayed on STDOUT. If no message is received,\n" .
+    "           nothing is displayed on STDOUT.\n" .
+    "  version  Displays version information and exits.";
 
 $package = new PEAR_PackageFileManager2();
 
