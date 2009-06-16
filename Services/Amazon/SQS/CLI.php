@@ -78,6 +78,13 @@ class Services_Amazon_SQS_CLI
     // {{{ private properties
 
     /**
+     * Command line interface parser
+     *
+     * @var Console_CommandLine
+     */
+    private $_parser = null;
+
+    /**
      * The access key id
      *
      * @var string
@@ -133,17 +140,17 @@ class Services_Amazon_SQS_CLI
      */
     public function run()
     {
-        $parser = Console_CommandLine::fromXmlFile($this->_getUiXml());
+        $this->_parser = Console_CommandLine::fromXmlFile($this->_getUiXml());
 
         try {
-            $result = $parser->parse();
+            $result = $this->_parser->parse();
 
             $this->_setOptions($result->options);
             $this->_loadConfig();
-            $this->_runCommand($parser, $result);
+            $this->_runCommand($this->_parser, $result);
 
         } catch (Console_CommandLine_Exception $e) {
-            $parser->displayError($e->getMessage());
+            $this->_displayError($e->getMessage());
         }
     }
 
@@ -260,10 +267,10 @@ class Services_Amazon_SQS_CLI
                 $command = $parser->commands[$subCommand];
                 $command->displayUsage();
             } else {
-                echo "Command \"" . $subCommand . "\" is not valid. " .
-                    "Try \"sqs help\n";
-
-                exit(1);
+                $this->_displayError(
+                    'Command "' . $subCommand . '" is not valid. Try ' .
+                    '"sqs help".' . PHP_EOL
+                );
             }
         } else {
             $parser->displayUsage();
@@ -296,7 +303,7 @@ class Services_Amazon_SQS_CLI
         }
 
         if (count($queues) === 0) {
-            $this->_output("No queues available.\n", STDERR);
+            $this->_displayError('No queues available.' . PHP_EOL, 0, false);
         } else {
 
             // getting queue attributes can take some time so collect all
@@ -317,19 +324,19 @@ class Services_Amazon_SQS_CLI
                 $rows[] = $row;
             }
 
-            $format = "%-55s  %-10s  %-10s\n";
+            $format = '%-55s  %-10s  %-10s' . PHP_EOL;
 
             // display headers
             if ($showHeaders) {
-                $this->_output(sprintf($format, '', 'ITEMS', 'VIS.'));
-                $this->_output(
+                $this->_display(sprintf($format, '', 'ITEMS', 'VIS.'));
+                $this->_display(
                     sprintf($format, 'QUEUE NAME', '(APPROX.)', 'TIMEOUT')
                 );
             }
 
             // display rows
             foreach ($rows as $row) {
-                $this->_output(
+                $this->_display(
                     sprintf(
                         $format,
                         $row['name'],
@@ -361,9 +368,9 @@ class Services_Amazon_SQS_CLI
             $this->_handleException($e);
         }
 
-        $this->_output(
-            "New queue has been added. It may take up to 60 seconds for the " .
-            "new queue to appear in the list of queues.\n"
+        $this->_display(
+            'New queue has been added. It may take up to 60 seconds for the ' .
+            'new queue to appear in the list of queues.' . PHP_EOL
         );
     }
 
@@ -387,9 +394,9 @@ class Services_Amazon_SQS_CLI
             $this->_handleException($e);
         }
 
-        $this->_output(
-            "Queue has been deleted. It may take up to 60 seconds for the " .
-            "queue list to reflect this change.\n"
+        $this->_display(
+            'Queue has been deleted. It may take up to 60 seconds for the ' .
+            'queue list to reflect this change.' . PHP_EOL
         );
     }
 
@@ -417,7 +424,7 @@ class Services_Amazon_SQS_CLI
             $this->_handleException($e);
         }
 
-        $this->_output($messageId . "\n");
+        $this->_display($messageId . PHP_EOL);
     }
 
     // }}}
@@ -447,8 +454,7 @@ class Services_Amazon_SQS_CLI
                 if ($delete) {
                     $queue->delete($messages[0]['handle']);
                 }
-                // display exactly as returned; do not run through _output().
-                echo $messages[0]['body'];
+                $this->_display($messages[0]['body']);
             }
         } catch (Services_Amazon_SQS_Exception $e) {
             $this->_handleException($e);
@@ -500,21 +506,17 @@ class Services_Amazon_SQS_CLI
         }
 
         if (!file_exists($configFile)) {
-            $this->_output(
-                "Configuration file \xe2\x80\x98" . $configFile .
-                "\xe2\x80\x99 was not found.\n",
-                STDERR
+            $this->_displayError(
+                'Configuration file "' . $configFile . '" was not found.' .
+                PHP_EOL
             );
-            exit(1);
         }
 
         if (!is_readable($configFile)) {
-            $this->_output(
-                "Configuration file \xe2\x80\x98" . $configFile .
-                "\xe2\x80\x99 is not readable.\n",
-                STDERR
+            $this->_displayError(
+                'Configuration file "' . $configFile . '" is not readable.' .
+                PHP_EOL
             );
-            exit(1);
         }
 
         $handler = set_error_handler(
@@ -526,12 +528,10 @@ class Services_Amazon_SQS_CLI
         restore_error_handler(E_WARNING);
 
         if ($config === false) {
-            $this->_output(
-                "Could not parse configuration file \xe2\x80\x98" .
-                $configFile . "\xe2\x80\x99.\n",
-                STDERR
+            $this->_displayError(
+                'Could not parse configuration file "' . $configFile . '".' .
+                PHP_EOL
             );
-            exit(1);
         }
 
         if (array_key_exists('access_key', $config)) {
@@ -543,26 +543,22 @@ class Services_Amazon_SQS_CLI
 
         // make sure access key is set
         if ($this->_accessKey == '') {
-            $this->_output(
-                "Access key id is missing from configuration file. Please " .
-                "set your Amazon Web Services access key id in the " .
-                "\xe2\x80\x98access_key\xe2\x80\x99 field in the file " .
-                "\xe2\x80\x98" . $configFile . "\xe2\x80\x99.\n",
-                STDERR
+            $this->_displayError(
+                'Access key id is missing from configuration file. Please ' .
+                'set your Amazon Web Services access key id in the ' .
+                '"access_key" field in the file "' . $configFile . '".' .
+                PHP_EOL
             );
-            exit(1);
         }
 
         // make sure secret access key is set
         if ($this->_secretAccessKey == '') {
-            $this->_output(
-                "Secret access key id is missing from configuration file. " .
-                "Please set your Amazon Web Services secret access key id " .
-                "in the \xe2\x80\x98secret_access_key\xe2\x80\x99 field in " .
-                "the file \xe2\x80\x98" . $configFile . "\xe2\x80\x99.\n",
-                STDERR
+            $this->_displayError(
+                'Secret access key id is missing from configuration file. ' .
+                'Please set your Amazon Web Services secret access key id ' .
+                'in the \"secret_access_key\" field in the file "' .
+                $configFile . '".' . PHP_EOL
             );
-            exit(1);
         }
     }
 
@@ -597,8 +593,7 @@ class Services_Amazon_SQS_CLI
      */
     private function _handleException(Services_Amazon_SQS_Exception $e)
     {
-        $this->_output($e->getMessage() . "\n", STDERR, false);
-        exit(1);
+        $this->_displayError($e->getMessage() . PHP_EOL);
     }
 
     // }}}
@@ -618,123 +613,52 @@ class Services_Amazon_SQS_CLI
         $matches = array();
         if (preg_match($exp, $errstr, $matches) === 1) {
 
-            $this->_output(
-                "Error parsing configuration file \xe2\x80\x98" . $matches[1] .
-                "\xe2\x80\x99 on line " . $matches[2] . "\n",
-                STDERR
+            $this->_displayError(
+                'Error parsing configuration file "' . $matches[1] .
+                '" on line ' . $matches[2] . PHP_EOL
             );
 
         } else {
-            $this->_output(trim($errstr) . "\n", STDERR, false);
+            $this->_displayError(trim($errstr) . PHP_EOL);
         }
-
-        exit(1);
     }
 
     // }}}
-    // {{{ _getConsoleEncoding()
+    // {{{ _display()
 
     /**
-     * Detects the character encoding of the console
+     * Displays a message on STDOUT
      *
-     * @return string the character encoding of the console. If the character
-     *                encoding could not be detected, ISO-8859-1 is returned.
-     */
-    private function _getConsoleEncoding()
-    {
-        // cache the results
-        static $encoding = null;
-
-        if ($encoding === null) {
-
-            if (function_exists('nl_langinfo') && is_callable('nl_langinfo')) {
-
-                // system supports nl_langinfo, use it
-                $encoding = nl_langinfo(CODESET);
-
-            } else {
-
-                // try to detect encoding from locale identifier
-                $lcCtype  = null;
-                $lcAll    = setlocale(LC_ALL, '0');
-                $lcAllExp = explode(';', $lcAll);
-
-                // get LC_CTYPE from the locale info if it exists
-                if (count($lcAllExp) === 1) {
-                    $lcCtype = reset($lcAllExp);
-                } else {
-                    foreach ($lcAllExp as $lc) {
-                        if (strncmp($lc, 'LC_CTYPE', 8) === 0) {
-                            $lcCtype = $lc;
-                            break;
-                        }
-                    }
-                }
-
-                // handle locales like 'en_US.UTF-8'
-                if ($lcCtype !== null) {
-                    $lcCtypeExp = explode('.', $lcCtype, 2);
-                    if (count($lcCtypeExp) === 2) {
-                        $encoding = $lcCtypeExp[1];
-                    }
-                }
-
-            }
-
-            // we did not detect an encoding, use ISO-8859-1
-            if ($encoding === null) {
-                $encoding = 'ISO-8859-1';
-            }
-
-        }
-
-        return $encoding;
-    }
-
-    // }}}
-    // {{{ _output()
-
-    /**
-     * Outputs text to an output stream
-     *
-     * @param string   $text   the text to output.
-     * @param resource $stream optional. The output stream to use. If not
-     *                         specified, STDOUT is used.
-     * @param boolean  $utf8   optional. Whether or not the input text is UTF-8
-     *                         encoded. If the console does not support UTF-8,
-     *                         text is decoded to ASCII before display.
+     * @param string   $text   the text to display.
      *
      * @return void
      */
-    private function _output($text, $stream = null, $utf8 = true)
+    private function _display($text)
     {
-        if ($stream === null) {
-            $stream = STDOUT;
+        $this->_parser->outputter->stdout($text);
+    }
+
+    // }}}
+    // {{{ _displayError()
+
+    /**
+     * Displays an error message on STDERR and optionally terminates the
+     * application
+     *
+     * @param string  $text the error message to display.
+     * @param integer $code optional. The exit code to use when exiting on
+     *                      an error. Defaults to 1.
+     * @param boolean $exit optional. Whether or not to exit after displaying
+     *                      the error message. Defaults to true.
+     *
+     * @return void
+     */
+    private function _displayError($string, $code = 1, $exit = true)
+    {
+        $this->_parser->outputter->stderr($string);
+        if ($exit) {
+            exit($code);
         }
-
-        // UTF-8 characters used in strings
-        static $search = array(
-            "\xe2\x80\x98",
-            "\xe2\x80\x99"
-        );
-
-        // ASCII equivalents
-        static $replace = array(
-            "'",
-            "'"
-        );
-
-        // get system newlines
-        $text = str_replace("\n", PHP_EOL, $text);
-
-        // convert to ASCII if input is UTF-8 and encoding is not UTF-8
-        $encoding = $this->_getConsoleEncoding();
-        if ($utf8 && preg_match('/^utf-?8$/i', $encoding) === 0) {
-            $text = str_replace($search, $replace, $text);
-        }
-
-        // send text to stream
-        fwrite($stream, $text);
     }
 
     // }}}
