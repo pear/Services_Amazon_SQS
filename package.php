@@ -107,7 +107,8 @@ $package->setOptions(
             'Services'            => 'php',
             'Services/Amazon'     => 'php',
             'Services/Amazon/SQS' => 'php',
-            'tests'               => 'test'
+            'tests'               => 'test',
+            'data'                => 'data'
         ),
         'exceptions'              => array(
             'scripts/sqs'         => 'script',
@@ -187,7 +188,7 @@ $package->addReplacement(
 );
 
 $package->addReplacement(
-    'Services/Amazon/SQS/CLI.php',
+    'data/cli.xml',
     'package-info',
     '@package-version@',
     'version'
@@ -198,6 +199,13 @@ $package->addReplacement(
     'package-info',
     '@package-name@',
     'name'
+);
+
+$package->addReplacement(
+    'Services/Amazon/SQS/CLI.php',
+    'pear-config',
+    '@data-dir@',
+    'data_dir'
 );
 
 $package->addReplacement(

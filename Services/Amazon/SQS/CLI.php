@@ -39,7 +39,7 @@
 /**
  * Command line parsing.
  */
-require_once 'Console/Getopt.php';
+require_once 'Console/CommandLine.php';
 
 /**
  * Exception classes.
@@ -67,7 +67,7 @@ require_once 'PEAR/Config.php';
  * @package   Services_Amazon_SQS
  * @author    Mike Brittain <mike@mikebrittain.com>
  * @author    Michael Gauthier <mike@silverorange.com>
- * @copyright 2008 Mike Brittain, 2008 silverorange
+ * @copyright 2008 Mike Brittain, 2008-2009 silverorange
  * @license   http://www.apache.org/licenses/LICENSE-2.0 Apache License 2.0
  * @link      http://pear.php.net/package/Services_Amazon_SQS
  * @link      http://aws.amazon.com/sqs/
@@ -76,13 +76,6 @@ require_once 'PEAR/Config.php';
 class Services_Amazon_SQS_CLI
 {
     // {{{ private properties
-
-    /**
-     * The command-line parser for this script
-     *
-     * @var Console_CommandLine
-     */
-    private $_parser = null;
 
     /**
      * The access key id
@@ -112,13 +105,6 @@ class Services_Amazon_SQS_CLI
      */
     private $_configFilename = '';
 
-    /**
-     * Whether or not to show usage statistics for the curent command
-     *
-     * @var boolean
-     */
-    private $_showStats = false;
-
     // }}}
     // {{{ singleton()
 
@@ -147,103 +133,18 @@ class Services_Amazon_SQS_CLI
      */
     public function run()
     {
-        $result = $this->_parse();
+        $parser = Console_CommandLine::fromXmlFile($this->_getUiXml());
 
-        $this->_setOptions($result['options']);
-        $this->_loadConfig();
-        $this->_runCommand($result['command'], $result['argument']);
+        try {
+            $result = $parser->parse();
 
-        if ($this->_showStats) {
-            $this->_displayStats();
+            $this->_setOptions($result->options);
+            $this->_loadConfig();
+            $this->_runCommand($parser, $result);
+
+        } catch (Console_CommandLine_Exception $e) {
+            $parser->displayError($e->getMessage());
         }
-    }
-
-    // }}}
-    // {{{ _parse()
-
-    /**
-     * Parses the command line of this application
-     *
-     * This gets global options, the command to run and the argument for the
-     * command (if it exists).
-     *
-     * @return array an associative array containing the following fields:
-     *               - <kbd>array  options</kbd>  - an array of options suitable
-     *                                              to pass to the _setOptions()
-     *                                              method.
-     *               - <kbd>string command</kbd>  - the command to run.
-     *               - <kbd>string argument</kbd> - the argument for the
-     *                                              command. If there is no
-     *                                              argument, this will be an
-     *                                              empty string.
-     */
-    private function _parse()
-    {
-        $result = array(
-            'options'  => array(),
-            'command'  => '',
-            'argument' => ''
-        );
-
-        $argv  = $_SERVER['argv'];
-        $short = 'c:';
-        $long  = array('config=');
-        $opts  = Console_Getopt::getopt($argv, $short, $long);
-        if (PEAR::isError($opts)) {
-            $message = $opts->getMessage();
-            $message = preg_replace('/^Console_Getopt: /', '', $message);
-            $this->_output(
-                $message . " Try \xe2\x80\x98sqs help\xe2\x80\x99.\n",
-                STDERR
-            );
-            exit(1);
-        }
-
-        // parse options
-        $options = $opts[0];
-        foreach ($options as $option) {
-            switch ($option[0]) {
-            case 'c':
-            case '--config':
-                $result['options']['config'] = $option[1];
-                break;
-            }
-        }
-
-        // get command
-        $commands = $opts[1];
-        if (count($commands) === 0) {
-            $command = 'help';
-        } else {
-            $command = array_shift($commands);
-        }
-
-        $validCommands = array(
-            'create',
-            'delete',
-            'help',
-            'list',
-            'send',
-            'receive',
-            'version'
-        );
-
-        if (!in_array($command, $validCommands)) {
-            $this->_output(
-                "Command \xe2\x80\x98" . $command . "\xe2\x80\x99 is not " .
-                "valid. Try \xe2\x80\x98sqs help\xe2\x80\x99.\n",
-                STDERR
-            );
-            exit(1);
-        }
-
-        $result['command'] = $command;
-
-        if (count($commands) > 0) {
-            $result['argument'] = $commands[0];
-        }
-
-        return $result;
     }
 
     // }}}
@@ -255,7 +156,7 @@ class Services_Amazon_SQS_CLI
      * Options are set from an array of named values. Available option names
      * are:
      *
-     * - <kbd>string  config</kbd> - the path to the configuration file to use.
+     * - <kbd>string config</kbd> - the path to the configuration file to use.
      *
      * @param array $options optional. An associative array of containing the
      *                       options to use.
@@ -264,7 +165,9 @@ class Services_Amazon_SQS_CLI
      */
     private function _setOptions(array $options)
     {
-        if (array_key_exists('config', $options)) {
+        if (   array_key_exists('config', $options)
+            && $options['config'] !== null
+        ) {
             $this->_configFilename = strval($options['config']);
         }
     }
@@ -275,106 +178,63 @@ class Services_Amazon_SQS_CLI
     /**
      * Runs the specified command for this application
      *
-     * @param string $command  the command to run. If the command is not a
-     *                         valid command, no action is taken.
-     * @param string $argument optional. The argument for the command. If no
-     *                         argument is specified, an empty string is used.
+     * @param Console_CommandLine        $parser the command-line interface
+     *                                           parser.
+     * @param Console_CommandLine_Result $result the results of parsing the
+     *                                           current command line.
      *
      * @return void
      */
-    private function _runCommand($command, $argument = '')
-    {
-        switch ($command) {
+    private function _runCommand(Console_CommandLine $parser,
+        Console_CommandLine_Result $result
+    ) {
+        $command = $result->command;
+
+        switch ($result->command_name) {
         case 'create':
-            if ($argument == '') {
-                $this->_output("No queue name specified.\n", STDERR);
-                exit(1);
-            }
-            $this->_createQueue($argument);
+            $this->_createQueue($command->args['queue_name']);
             break;
 
         case 'delete':
-            if ($argument == '') {
-                $this->_output("No queue URI specified.\n", STDERR);
-                exit(1);
-            }
-            $this->_deleteQueue($argument);
+            $this->_deleteQueue($command->args['queue_uri']);
             break;
 
         case 'help':
-            $this->_displayHelp($argument);
+            $this->_help($parser, $result);
             break;
 
         case 'list':
-            $this->_listQueues($argument);
+            $headers = ($command->options['no_headers']) ? false : true;
+            $this->_listQueues(
+                $command->args['prefix'],
+                $headers
+            );
             break;
 
         case 'send':
-            if ($argument == '') {
-                $this->_output("No queue URI specified.\n", STDERR);
-                exit(1);
-            }
-            $this->_send($argument);
+            $this->_send($command->args['queue_uri']);
             break;
 
         case 'receive':
-            if ($argument == '') {
-                $this->_output("No queue URI specified.\n", STDERR);
-                exit(1);
+            $delete  = ($command->options['delete']) ? true : false;
+            if ($command->options['timeout'] === null) {
+                $timeout = 30;
+            } else {
+                $timeout = intval($command->options['timeout']);
             }
-            $this->_receive($argument);
+            $this->_receive(
+                $command->args['queue_uri'],
+                $delete,
+                $timeout
+            );
             break;
 
         case 'version':
-            $this->_displayVersion();
+            $parser->displayVersion();
             break;
-        }
-    }
 
-    // }}}
-    // {{{ _displayHelp()
-
-    /**
-     * Displays the appropriate help section
-     *
-     * @param string $argument the argument passed to the <i>help</i> command.
-     *                         Appropriate help is displayed depending on the
-     *                         argument value.
-     *
-     * @return void
-     */
-    private function _displayHelp($argument)
-    {
-        if ($argument === '') {
-            $this->_help();
-        } else {
-            switch ($argument) {
-            case 'create':
-                $this->_helpCreate();
-                break;
-            case 'delete':
-                $this->_helpDelete();
-                break;
-            case 'list':
-                $this->_helpList();
-                break;
-            case 'send':
-                $this->_helpSend();
-                break;
-            case 'receive':
-                $this->_helpReceive();
-                break;
-            case 'version':
-                $this->_helpVersion();
-                break;
-            default:
-                $this->_output(
-                    "Command \xe2\x80\x98" . $argument . "\xe2\x80\x99 is " .
-                    "not valid. Try \xe2\x80\x98sqs help\xe2\x80\x99.\n",
-                    STDERR
-                );
-                exit(1);
-            }
+        default:
+            break;
         }
     }
 
@@ -384,156 +244,30 @@ class Services_Amazon_SQS_CLI
     /**
      * Displays general command-line usage help
      *
-     * @return void
-     */
-    private function _help()
-    {
-        $this->_output(
-            "A command-line interface to Amazon\xe2\x80\x99s Simple Queue " .
-            "Service.\n" .
-            "\n" .
-            "Usage:\n" .
-            "  sqs [options] command [args]\n" .
-            "\n" .
-            "Commands:\n" .
-            "  create   Creates a new queue with the specified name.\n" .
-            "  delete   Deletes an existing queue by the specified URI.\n" .
-            "  list     Lists available queues.\n" .
-            "  send     Sends a message to the specified queue.\n" .
-            "  receive  Receives a message from the specified queue.\n" .
-            "  version  Displays version information.\n" .
-            "\n" .
-            "Options:\n" .
-            "  -c, --config=file  Find configuration in " .
-            "\xe2\x80\x98file\xe2\x80\x99.\n" .
-            "\n" .
-            "Type \xe2\x80\x98sqs help <command>\xe2\x80\x99 to get help " .
-            "for the specified command.\n" .
-            "\n"
-        );
-    }
-
-    // }}}
-    // {{{ _helpCreate()
-
-    /**
-     * Displays help for the <i>create</i> command
+     * @param Console_CommandLine        $parser the command-line interface
+     *                                           parser.
+     * @param Console_CommandLine_Result $result the results of parsing the
+     *                                           current command line.
      *
      * @return void
      */
-    private function _helpCreate()
-    {
-        $this->_output(
-            "sqs create <queue-name>\n" .
-            "\n" .
-            "Creates a new queue with the specified name. The queue may " .
-            "take up to 60 seconds to become available.\n" .
-            "\n"
-        );
-    }
+    private function _help(Console_CommandLine $parser,
+        Console_CommandLine_Result $result
+    ) {
+        $subCommand = $result->command->args['command'];
+        if ($subCommand) {
+            if (array_key_exists($subCommand, $parser->commands)) {
+                $command = $parser->commands[$subCommand];
+                $command->displayUsage();
+            } else {
+                echo "Command \"" . $subCommand . "\" is not valid. " .
+                    "Try \"sqs help\n";
 
-    // }}}
-    // {{{ _helpDelete()
-
-    /**
-     * Displays help for the <i>delete</i> command
-     *
-     * @return void
-     */
-    private function _helpDelete()
-    {
-        $this->_output(
-            "sqs delete <queue-uri>\n" .
-            "\n" .
-            "Deletes a queue with the specified URI. The queue may take up " .
-            "to 60 seconds to become unavailable.\n" .
-            "\n"
-        );
-    }
-
-    // }}}
-    // {{{ _helpList()
-
-    /**
-     * Displays help for the <i>list</i> command
-     *
-     * @return void
-     */
-    private function _helpList()
-    {
-        $this->_output(
-            "sqs list [prefix]\n" .
-            "\n" .
-            "Lists available queues. If a prefix is specified, only queues " .
-            "beginning with the specified prefix are listed.\n" .
-            "\n" .
-            "Options:\n" .
-            "  -h, --no-headers Don\xe2\x80\x99t show list headers\n" .
-            "\n"
-        );
-    }
-
-    // }}}
-    // {{{ _helpSend()
-
-    /**
-     * Displays help for the <i>send</i> command
-     *
-     * @return void
-     */
-    private function _helpSend()
-    {
-        $this->_output(
-            "sqs send <queue-uri>\n" .
-            "\n" .
-            "Sends input from STDIN to the specified queue. The resulting " .
-            "message identifier is displayed on STDOUT.\n" .
-            "\n"
-        );
-    }
-
-    // }}}
-    // {{{ _helpReceive()
-
-    /**
-     * Displays help for the <i>receive</i> command
-     *
-     * @return void
-     */
-    private function _helpReceive()
-    {
-        $this->_output(
-            "sqs receive [options] <queue-uri>\n" .
-            "\n" .
-            "Receives a message from the specified queue. The message body " .
-            "is displayed on STDOUT. If no message is received, nothing is " .
-            "displayed on STDOUT.\n" .
-            "\n" .
-            "Options:\n" .
-            "  -d, --delete         Deletes the message after receiving it. " .
-            "\n" .
-            "  -t, --timeout=value  Sets the visibility timeout for the " .
-            "received message.\n" .
-            "\n"
-        );
-    }
-
-    // }}}
-    // {{{ _helpVersion()
-
-    /**
-     * Displays help for the <i>version</i> command
-     *
-     * @return void
-     */
-    private function _helpVersion()
-    {
-        $this->_output(
-            "sqs version\n" .
-            "\n" .
-            "Displays version information and exits.\n" .
-            "\n"
-        );
+                exit(1);
+            }
+        } else {
+            $parser->displayUsage();
+        }
     }
 
     // }}}
@@ -722,39 +456,26 @@ class Services_Amazon_SQS_CLI
     }
 
     // }}}
-    // {{{ _displayVersion()
+    // {{{ _getUiXml()
 
     /**
-     * Displays version information for this script
+     * Gets the command-line user-interface definition XML file
      *
-     * @return void
+     * @return string the user-interface definition for this command-line
+     *                application.
      */
-    private function _displayVersion()
+    private function _getUiXml()
     {
-        $this->_output(
-            $_SERVER['SCRIPT_NAME'] . " version " . $this->_getVersion() . "\n"
-        );
-    }
+        $dir = '@data-dir@' . DIRECTORY_SEPARATOR
+            . '@package-name@' . DIRECTORY_SEPARATOR . 'data';
 
-    // }}}
-    // {{{ _getVersion()
-
-    /**
-     * Gets the version of this application
-     *
-     * The version identifier is derived from the installed package version.
-     *
-     * @return string the version of this application.
-     */
-    private function _getVersion()
-    {
-        $version = '@package-version@';
-
-        if ($version[0] == '@') {
-            $version = 'CVS';
+        if ($dir[0] == '@') {
+            $dir = dirname(__FILE__) . DIRECTORY_SEPARATOR . '..'
+                . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . '..'
+                . DIRECTORY_SEPARATOR . 'data';
         }
 
-        return $version;
+        return $dir . DIRECTORY_SEPARATOR . 'cli.xml';
     }
 
     // }}}
