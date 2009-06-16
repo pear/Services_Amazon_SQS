@@ -63,7 +63,7 @@
 	<command>
 		<name>receive</name>
 		<add_help_option>no</add_help_option><!-- help is a subcommand -->
-		<description>Receives a message from the specified queue. The message body is displayed on STDOUT. If no message is received, nothins is displayed on STDOUT.</description>
+		<description>Receives a message from the specified queue. The message body is displayed on STDOUT. If no message is received, nothing is displayed on STDOUT.</description>
 		<option name="delete">
 			<short_name>-d</short_name>
 			<long_name>--delete</long_name>
