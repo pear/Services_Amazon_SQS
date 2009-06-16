@@ -95,7 +95,7 @@ class Services_Amazon_SQS_Queue extends Services_Amazon_SQS
      *        {@link Services_Amazon_SQS_Account} object or a string containing
      *        the SQS access key for an account.
      *
-     * @param string                             $secretAccessKey if the first
+     * @param string                             $secretAccessKey if the second
      *        parameter is an account object, this parameter is ignored.
      *        Otherwise, this parameter is required and is the secret access
      *        key for the SQS account.
