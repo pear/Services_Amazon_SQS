@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="iso-8859-1" standalone="yes"?>
+<command>
+	<description>A command-line interface to Amazon's Simple Queue Service (SQS).</description>
+	<version>@package-version@</version>
+	<add_version_option>no</add_version_option><!-- version is a subcommand -->
+	<add_help_option>no</add_help_option><!-- help is a subcommand -->
+	<option name="config">
+		<short_name>-c</short_name>
+		<long_name>--config</long_name>
+		<description>Find configuration in &quot;config&quot;.</description>
+	</option>
+	<command>
+		<name>create</name>
+		<add_help_option>no</add_help_option><!-- help is a subcommand -->
+		<description>Creates a new queue with the specified name. The queue may take up to 60 seconds to become available.</description>
+		<argument name="queue_name">
+			<description>The name of the queue to create.</description>
+			<help_name>queue-name</help_name>
+		</argument>
+	</command>
+	<command>
+		<name>delete</name>
+		<add_help_option>no</add_help_option><!-- help is a subcommand -->
+		<description>Deletes an existing queue by the specified URI. The queue may take up to 60 seconds to become unavailable.</description>
+		<argument name="queue_uri">
+			<description>The URI of the queue to delete.</description>
+			<help_name>queue-uri</help_name>
+		</argument>
+	</command>
+	<command>
+		<name>help</name>
+		<add_help_option>no</add_help_option><!-- help is a subcommand -->
+		<description>Displays an overview of available options and commands, or detailed help for a specific command.</description>
+		<argument name="command">
+			<description>An optional command name for which to get detailed help.</description>
+			<optional>yes</optional>
+		</argument>
+	</command>
+	<command>
+		<name>list</name>
+		<add_help_option>no</add_help_option><!-- help is a subcommand -->
+		<description>Lists available queues. If a prefix is specified, only queues beginning with the specified prefix are listed.</description>
+		<option name="no_headers">
+			<short_name>-h</short_name>
+			<long_name>--no-headers</long_name>
+			<description>Don't show list headers.</description>
+			<action>StoreTrue</action>
+		</option>
+		<argument name="prefix">
+			<description>An optional prefix of the queues to list.</description>
+			<optional>yes</optional>
+		</argument>
+	</command>
+	<command>
+		<name>send</name>
+		<add_help_option>no</add_help_option><!-- help is a subcommand -->
+		<description>Sends input from STDIN to the specified queue. The resulting message identifier is displayed on STDOUT.</description>
+		<argument name="queue_uri">
+			<description>The URI of the queue to which the message is sent.</description>
+			<help_name>queue-uri</help_name>
+		</argument>
+	</command>
+	<command>
+		<name>receive</name>
+		<add_help_option>no</add_help_option><!-- help is a subcommand -->
+		<description>Receives a message from the specified queue. The message body is displayed on STDOUT. If no message is received, nothins is displayed on STDOUT.</description>
+		<option name="delete">
+			<short_name>-d</short_name>
+			<long_name>--delete</long_name>
+			<description>Deletes the message after receiveing it.</description>
+			<action>StoreTrue</action>
+		</option>
+		<option name="timeout">
+			<short_name>-t</short_name>
+			<long_name>--timeout</long_name>
+			<description>Sets the visibility timeout for the received message.</description>
+			<action>StoreString</action>
+		</option>
+		<argument name="queue_uri">
+			<description>The URI of the queue from which the message is received.</description>
+			<help_name>queue-uri</help_name>
+		</argument>
+	</command>
+	<command>
+		<name>version</name>
+		<add_help_option>no</add_help_option><!-- help is a subcommand -->
+		<description>Displays version information and exits.</description>
+	</command>
+</command>
