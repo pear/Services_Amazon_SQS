@@ -9,6 +9,9 @@
 		<long_name>--config</long_name>
 		<description>Find configuration in &quot;config&quot;.</description>
 	</option>
+	<messages>
+		<message name="INVALID_SUBCOMMAND">Command &quot;{$command}&quot; is not valid. Try &quot;sqs help&quot;.</message>
+	</messages>
 	<command>
 		<name>create</name>
 		<add_help_option>no</add_help_option><!-- help is a subcommand -->
@@ -17,6 +20,9 @@
 			<description>The name of the queue to create.</description>
 			<help_name>queue-name</help_name>
 		</argument>
+		<messages>
+			<message name="ARGUMENT_REQUIRED">No queue name specified.</message>
+		</messages>
 	</command>
 	<command>
 		<name>delete</name>
@@ -26,6 +32,9 @@
 			<description>The URI of the queue to delete.</description>
 			<help_name>queue-uri</help_name>
 		</argument>
+		<messages>
+			<message name="ARGUMENT_REQUIRED">No queue URI specified.</message>
+		</messages>
 	</command>
 	<command>
 		<name>help</name>
@@ -59,6 +68,9 @@
 			<description>The URI of the queue to which the message is sent.</description>
 			<help_name>queue-uri</help_name>
 		</argument>
+		<messages>
+			<message name="ARGUMENT_REQUIRED">No queue URI specified.</message>
+		</messages>
 	</command>
 	<command>
 		<name>receive</name>
@@ -74,12 +86,15 @@
 			<short_name>-t</short_name>
 			<long_name>--timeout</long_name>
 			<description>Sets the visibility timeout for the received message.</description>
-			<action>StoreString</action>
+			<action>StoreInt</action>
 		</option>
 		<argument name="queue_uri">
 			<description>The URI of the queue from which the message is received.</description>
 			<help_name>queue-uri</help_name>
 		</argument>
+		<messages>
+			<message name="ARGUMENT_REQUIRED">No queue URI specified.</message>
+		</messages>
 	</command>
 	<command>
 		<name>version</name>
