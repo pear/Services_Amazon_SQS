@@ -55,14 +55,14 @@ Commands:
   <active>yes</active>
  </lead>
  <date>2009-06-19</date>
- <time>10:08:52</time>
+ <time>10:15:45</time>
  <version>
   <release>0.2.0</release>
   <api>0.2.0</api>
  </version>
  <stability>
-  <release>alpha</release>
-  <api>alpha</api>
+  <release>beta</release>
+  <api>beta</api>
  </stability>
  <license uri="http://www.apache.org/licenses/LICENSE-2.0">Apache License 2.0</license>
  <notes>
@@ -185,8 +185,8 @@ Second PEAR release
     <api>0.2.0</api>
    </version>
    <stability>
-    <release>alpha</release>
-    <api>alpha</api>
+    <release>beta</release>
+    <api>beta</api>
    </stability>
    <date>2009-06-19</date>
    <license uri="http://www.apache.org/licenses/LICENSE-2.0">Apache License 2.0</license>

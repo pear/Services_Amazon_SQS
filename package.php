@@ -35,10 +35,10 @@ require_once 'PEAR/PackageFileManager2.php';
 PEAR::setErrorHandling(PEAR_ERROR_DIE);
 
 $api_version     = '0.2.0';
-$api_state       = 'alpha';
+$api_state       = 'beta';
 
 $release_version = '0.2.0';
-$release_state   = 'alpha';
+$release_state   = 'beta';
 $release_notes   =
     "Second PEAR release\n" .
     " * Implemented Req #15431. Added send and receive commands to the " .
