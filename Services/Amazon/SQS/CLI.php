@@ -150,7 +150,7 @@ class Services_Amazon_SQS_CLI
             $this->_runCommand($this->_parser, $result);
 
         } catch (Console_CommandLine_Exception $e) {
-            $this->_displayError($e->getMessage());
+            $this->_displayError($e->getMessage() . PHP_EOL);
         }
     }
 
