@@ -243,8 +243,8 @@ $package->addPackageDepWithChannel(
 $package->addPackageDepWithChannel(
     'required',
     'Console_CommandLine',
-    'pear.php.net'
-    /* TODO: version */
+    'pear.php.net',
+    '1.1.0'
 );
 
 $package->addPackageDepWithChannel(
