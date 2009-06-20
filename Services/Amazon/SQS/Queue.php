@@ -344,11 +344,17 @@ class Services_Amazon_SQS_Queue extends Services_Amazon_SQS
      * following attributes:
      *
      * - <kbd>ApproximateNumberOfMessages</kbd> - an approximation of the number
-     *                                            of messages in this queue.
+     * - <kbd>CreatedTimestamp</kbd>            - the date this queue was
+     *                                            created.
+     * - <kbd>LastModifiedTimestamp</kbd>       - the date this queue was
+     *                                            last modified.
      * - <kbd>VisibilityTimeout</kbd>           - the default time period for
      *                                            which messages are made
      *                                            invisible when retrieved from
      *                                            this queue.
+     *
+     * Timestamp values are formatted according to the <kbd>dateTime</kbd>
+     * data-type specified in XML Schema (essentially ISO 8601) and are in UTC.
      *
      * Additionally, the special attribute <kbd>All</kbd> may be used to
      * retrieve all available attributes.
