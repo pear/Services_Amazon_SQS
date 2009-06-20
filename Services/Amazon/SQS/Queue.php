@@ -237,6 +237,8 @@ class Services_Amazon_SQS_Queue extends Services_Amazon_SQS
      *         returned by Amazon.
      *
      * @throws Services_Amazon_SQS_HttpException if the HTTP request fails.
+     *
+     * @see Services_Amazon_SQS_Queue::changeMessageVisibility()
      */
     public function receive($count = 1, $timeout = null)
     {
@@ -318,6 +320,57 @@ class Services_Amazon_SQS_Queue extends Services_Amazon_SQS
 
         $params['Action']        = 'DeleteMessage';
         $params['ReceiptHandle'] = $handle;
+
+        try {
+            $this->sendRequest($params, $this->_queueUrl);
+        } catch (Services_Amazon_SQS_ErrorException $e) {
+            switch ($e->getError()) {
+            case 'AWS.SimpleQueueService.NonExistentQueue':
+                throw new Services_Amazon_SQS_InvalidQueueException('The ' .
+                    'queue "' . $this . '" does not exist.', 0,
+                    $this->_queueUrl);
+
+            default:
+                throw $e;
+            }
+        }
+    }
+
+    // }}}
+    // {{{ changeMessageVisibility()
+
+    /**
+     * Changes the visibility timeout for a message in this queue
+     *
+     * Once a message is received, it is invisible to the queue for the
+     * duration of the visibility timeout. After receiving the message, the
+     * visibility timeout may be increased if the queue operation will take
+     * longer than the default visibility timeout.
+     *
+     * Message visibility may be changed multiple times, but a single received
+     * message can not have a total visibility timeout period exceeding 12
+     * hours.
+     *
+     * @param string  $handle  the receipt handle of the message to update.
+     * @param integer $timeout the new visibility timeout for the message.
+     *
+     * @return void
+     *
+     * @throws Services_Amazon_SQS_InvalidQueueException if this queue does
+     *         not exist for the Amazon SQS account.
+     *
+     * @throws Services_Amazon_SQS_ErrorException if one or more errors are
+     *         returned by Amazon.
+     *
+     * @throws Services_Amazon_SQS_HttpException if the HTTP request fails.
+     */
+    public function changeMessageVisibility($handle, $timeout)
+    {
+        $params = array();
+
+        $params['Action']            = 'ChangeMessageVisibility';
+        $params['ReceiptHandle']     = $handle;
+        $params['VisibilityTimeout'] = $timeout;
 
         try {
             $this->sendRequest($params, $this->_queueUrl);
