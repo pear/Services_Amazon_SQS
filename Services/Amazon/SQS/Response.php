@@ -64,7 +64,7 @@ class Services_Amazon_SQS_Response
     /**
      * XML namespace used for SQS responses.
      */
-    const XML_NAMESPACE = 'http://queue.amazonaws.com/doc/2008-01-01/';
+    const XML_NAMESPACE = 'http://queue.amazonaws.com/doc/2009-02-01/';
 
     // }}}
     // {{{ private properties

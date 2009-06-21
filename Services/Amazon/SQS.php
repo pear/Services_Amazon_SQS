@@ -102,7 +102,7 @@ abstract class Services_Amazon_SQS
     /**
      * The API version to use.
      */
-    const SQS_API_VERSION = '2008-01-01';
+    const SQS_API_VERSION = '2009-02-01';
 
     /**
      * The signature version used by Services_Amazon_SQS.
