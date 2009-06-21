@@ -207,7 +207,7 @@ class Services_Amazon_SQS_TestCase extends PHPUnit_Framework_TestCase
         // {{{ response body
         $body = <<<XML
 <?xml version="1.0"?>
-<DeleteQueueResponse xmlns="http://queue.amazonaws.com/doc/2008-01-01/">
+<DeleteQueueResponse xmlns="http://queue.amazonaws.com/doc/2009-02-01/">
   <ResponseMetadata>
     <RequestId>4a5a1753-d3f7-478b-aef8-3be0d1c8fe73</RequestId>
   </ResponseMetadata>
@@ -240,7 +240,7 @@ XML;
         // {{{ response body
         $body = <<<XML
 <?xml version="1.0"?>
-<DeleteQueueResponse xmlns="http://queue.amazonaws.com/doc/2008-01-01/">
+<DeleteQueueResponse xmlns="http://queue.amazonaws.com/doc/2009-02-01/">
   <ResponseMetadata>
     <RequestId>4a5a1753-d3f7-478b-aef8-3be0d1c8fe73</RequestId>
   </ResponseMetadata>
@@ -275,7 +275,7 @@ XML;
         // {{{ response body
         $body = <<<XML
 <?xml version="1.0"?>
-<ListQueuesResponse xmlns="http://queue.amazonaws.com/doc/2008-01-01/">
+<ListQueuesResponse xmlns="http://queue.amazonaws.com/doc/2009-02-01/">
   <ListQueuesResult>
     <QueueUrl>http://queue.amazonaws.com/this-is-a-test</QueueUrl>
     <QueueUrl>http://queue.amazonaws.com/test-queue</QueueUrl>
@@ -328,7 +328,7 @@ XML;
         // {{{ response body
         $body = <<<XML
 <?xml version="1.0"?>
-<ListQueuesResponse xmlns="http://queue.amazonaws.com/doc/2008-01-01/">
+<ListQueuesResponse xmlns="http://queue.amazonaws.com/doc/2009-02-01/">
   <ListQueuesResult>
     <QueueUrl>http://queue.amazonaws.com/example-queue</QueueUrl>
     <QueueUrl>http://queue.amazonaws.com/examples</QueueUrl>
@@ -377,7 +377,7 @@ XML;
         // {{{ response body
         $body = <<<XML
 <?xml version="1.0"?>
-<CreateQueueResponse xmlns="http://queue.amazonaws.com/doc/2008-01-01/">
+<CreateQueueResponse xmlns="http://queue.amazonaws.com/doc/2009-02-01/">
   <CreateQueueResult>
     <QueueUrl>http://queue.amazonaws.com/example</QueueUrl>
   </CreateQueueResult>
@@ -419,7 +419,7 @@ XML;
         // {{{ response body
         $body = <<<XML
 <?xml version="1.0"?>
-<CreateQueueResponse xmlns="http://queue.amazonaws.com/doc/2008-01-01/">
+<CreateQueueResponse xmlns="http://queue.amazonaws.com/doc/2009-02-01/">
   <CreateQueueResult>
     <QueueUrl>http://queue.amazonaws.com/example</QueueUrl>
   </CreateQueueResult>
@@ -475,7 +475,7 @@ XML;
         // {{{ response body
         $body = <<<XML
 <?xml version="1.0"?>
-<GetAttributesResponse xmlns="http://queue.amazonaws.com/doc/2008-01-01/">
+<GetAttributesResponse xmlns="http://queue.amazonaws.com/doc/2009-02-01/">
   <GetAttributesResult>
     <Attribute>
       <Name>VisibilityTimeout</Name>
@@ -531,7 +531,7 @@ XML;
         // {{{ response body
         $body = <<<XML
 <?xml version="1.0"?>
-<GetAttributesResponse xmlns="http://queue.amazonaws.com/doc/2008-01-01/">
+<GetAttributesResponse xmlns="http://queue.amazonaws.com/doc/2009-02-01/">
   <GetAttributesResult>
     <Attribute>
       <Name>VisibilityTimeout</Name>
@@ -580,7 +580,7 @@ XML;
         // {{{ response body
         $body = <<<XML
 <?xml version="1.0"?>
-<GetAttributesResponse xmlns="http://queue.amazonaws.com/doc/2008-01-01/">
+<GetAttributesResponse xmlns="http://queue.amazonaws.com/doc/2009-02-01/">
   <GetAttributesResult>
     <Attribute>
       <Name>ApproximateNumberOfMessages</Name>
@@ -630,14 +630,14 @@ XML;
         // {{{ response body
         $body = <<<XML
 <?xml version="1.0"?>
-<ErrorResponse xmlns="http://queue.amazonaws.com/doc/2008-01-01/">
+<ErrorResponse xmlns="http://queue.amazonaws.com/doc/2009-02-01/">
   <Error>
     <Type>Sender</Type>
     <Code>InvalidAttributeName</Code>
     <Message>Unknown Attribute InvalidAttributeName</Message>
     <Detail/>
   </Error>
-  <RequestID>0dfad892-bcd7-481b-8954-ed6a69245b00</RequestID>
+  <RequestId>0dfad892-bcd7-481b-8954-ed6a69245b00</RequestId>
 </ErrorResponse>
 XML;
 
@@ -667,7 +667,7 @@ XML;
         // {{{ response body
         $body = <<<XML
 <?xml version="1.0"?>
-<SetQueueAttributesResponse xmlns="http://queue.amazonaws.com/doc/2008-01-01/">
+<SetQueueAttributesResponse xmlns="http://queue.amazonaws.com/doc/2009-02-01/">
   <ResponseMetadata>
     <RequestId>ede893f6-d22b-4eb8-8636-a325a4407ce8</RequestId>
   </ResponseMetadata>
@@ -701,14 +701,14 @@ XML;
         // {{{ response body
         $body = <<<XML
 <?xml version="1.0"?>
-<ErrorResponse xmlns="http://queue.amazonaws.com/doc/2008-01-01/">
+<ErrorResponse xmlns="http://queue.amazonaws.com/doc/2009-02-01/">
   <Error>
     <Type>Sender</Type>
     <Code>InvalidAttributeName</Code>
     <Message>Unknown Attribute InvalidAttributeName</Message>
     <Detail/>
   </Error>
-  <RequestID>0dfad892-bcd7-481b-8954-ed6a69245b00</RequestID>
+  <RequestId>0dfad892-bcd7-481b-8954-ed6a69245b00</RequestId>
 </ErrorResponse>
 XML;
 
@@ -739,14 +739,14 @@ XML;
         // {{{ response body
         $body = <<<XML
 <?xml version="1.0"?>
-<ErrorResponse xmlns="http://queue.amazonaws.com/doc/2008-01-01/">
+<ErrorResponse xmlns="http://queue.amazonaws.com/doc/2009-02-01/">
   <Error>
     <Type>Sender</Type>
     <Code>InvalidAttributeValue</Code>
     <Message>Attribute VisibilityTimeout must be an integer between 0 and 7200</Message>
     <Detail/>
   </Error>
-  <RequestID>cc46c162-d65f-4874-bf74-79d28e00b181</RequestID>
+  <RequestId>cc46c162-d65f-4874-bf74-79d28e00b181</RequestId>
 </ErrorResponse>
 XML;
 
@@ -778,7 +778,7 @@ XML;
         // {{{ response body
         $body = <<<XML
 <?xml version="1.0"?>
-<SendMessageResponse xmlns="http://queue.amazonaws.com/doc/2008-01-01/">
+<SendMessageResponse xmlns="http://queue.amazonaws.com/doc/2009-02-01/">
   <SendMessageResult>
     <MD5OfMessageBody>8b25734299a8efa7eeb74bf261bdc72d</MD5OfMessageBody>
     <MessageId>90b160de-132b-45c6-afea-4679b27a485d</MessageId>
@@ -817,7 +817,7 @@ XML;
         // {{{ response body
         $body = <<<XML
 <?xml version="1.0"?>
-<ReceiveMessageResponse xmlns="http://queue.amazonaws.com/doc/2008-01-01/">
+<ReceiveMessageResponse xmlns="http://queue.amazonaws.com/doc/2009-02-01/">
   <ReceiveMessageResult>
     <Message>
       <MessageId>90b160de-132b-45c6-afea-4679b27a485d</MessageId>
@@ -874,7 +874,7 @@ XML;
         // {{{ response body
         $body = <<<XML
 <?xml version="1.0"?>
-<ReceiveMessageResponse xmlns="http://queue.amazonaws.com/doc/2008-01-01/">
+<ReceiveMessageResponse xmlns="http://queue.amazonaws.com/doc/2009-02-01/">
   <ReceiveMessageResult>
     <Message>
       <MessageId>90b160de-132b-45c6-afea-4679b27a485d</MessageId>
@@ -985,7 +985,7 @@ XML;
         // {{{ response body
         $body = <<<XML
 <?xml version="1.0"?>
-<ReceiveMessageResponse xmlns="http://queue.amazonaws.com/doc/2008-01-01/">
+<ReceiveMessageResponse xmlns="http://queue.amazonaws.com/doc/2009-02-01/">
   <ReceiveMessageResult>
     <Message>
       <MessageId>90b160de-132b-45c6-afea-4679b27a485d</MessageId>
@@ -1054,7 +1054,7 @@ XML;
         // {{{ response body
         $body = <<<XML
 <?xml version="1.0"?>
-<DeleteMessageResponse xmlns="http://queue.amazonaws.com/doc/2008-01-01/">
+<DeleteMessageResponse xmlns="http://queue.amazonaws.com/doc/2009-02-01/">
   <ResponseMetadata>
     <RequestId>7eb71adb-362b-4ce4-a626-4dcd7ca0dfc2</RequestId>
   </ResponseMetadata>
@@ -1093,14 +1093,14 @@ XML;
         // {{{ response body
         $body = <<<XML
 <?xml version="1.0"?>
-<ErrorResponse xmlns="http://queue.amazonaws.com/doc/2008-01-01/">
+<ErrorResponse xmlns="http://queue.amazonaws.com/doc/2009-02-01/">
   <Error>
     <Type>Sender</Type>
     <Code>ReceiptHandleIsInvalid</Code>
     <Message>ReceiptHandleIsInvalid</Message>
     <Detail/>
   </Error>
-  <RequestID>01ec860e-694c-4857-b1c2-61691129c09d</RequestID>
+  <RequestId>01ec860e-694c-4857-b1c2-61691129c09d</RequestId>
 </ErrorResponse>
 XML;
 
@@ -1116,6 +1116,128 @@ XML;
         $this->addHttpResponse($body, $headers, 'HTTP/1.1 404 Not Found');
 
         $this->queue->delete('invalid-receipt-handle');
+    }
+
+    // }}}
+    // {{{ testChangeMessageVisibility()
+
+    /**
+     * @group message
+     */
+    public function testChangeMessageVisibility()
+    {
+        // {{{ response body
+        $body = <<<XML
+<?xml version="1.0"?>
+<ChangeMessageVisibilityResponse xmlns="http://queue.amazonaws.com/doc/2009-02-01/">
+  <ResponseMetadata>
+    <RequestId>7eb71adb-362b-4ce4-a626-4dcd7ca0dfc2</RequestId>
+  </ResponseMetadata>
+</ChangeMessageVisibilityResponse>
+XML;
+
+        $body = $this->formatXml($body);
+        // }}}
+        // {{{ response headers
+        $headers = array(
+            'Content-Type'      => 'text/xml',
+            'Transfer-Encoding' => 'chunked',
+            'Date'              => 'Sun, 18 Jan 2009 17:34:20 GMT',
+            'Server'            => 'AWS Simple Queue Service'
+        );
+        // }}}
+        $this->addHttpResponse($body, $headers);
+
+        $this->queue->changeMessageVisibility(
+            '+eXJYhj5rDqRunVNVvjOQKJ0obJP08UNsXdn2v3Lwq+' .
+            'TDtD3hk3aBKbSH1mGc4hzO/VZOIC0RFzLWMLhfKh4qn' .
+            'n3x35CTz9dLTiBp6rMQSSsfakSe+GcTkPfqzNJdCM4P' .
+            'zHuhDaS9mXjcAcCzIRrOX9Mp5AiZxsfiLGqOsqhtH0',
+            3600
+        );
+    }
+
+    // }}}
+    // {{{ testChangeMessageVisibilityInvalidTimeout()
+
+    /**
+     * @group message
+     * @expectedException Services_Amazon_SQS_InvalidTimeoutException
+     */
+    public function testChangeMessageVisibilityInvalidTimeout()
+    {
+        // {{{ response body
+        $body = <<<XML
+<?xml version="1.0"?>
+<DeleteMessageResponse xmlns="http://queue.amazonaws.com/doc/2009-02-01/">
+  <ResponseMetadata>
+    <RequestId>7eb71adb-362b-4ce4-a626-4dcd7ca0dfc2</RequestId>
+  </ResponseMetadata>
+</DeleteMessageResponse>
+XML;
+
+        $body = $this->formatXml($body);
+        // }}}
+        // {{{ response headers
+        $headers = array(
+            'Content-Type'      => 'text/xml',
+            'Transfer-Encoding' => 'chunked',
+            'Date'              => 'Sun, 18 Jan 2009 17:34:20 GMT',
+            'Server'            => 'AWS Simple Queue Service'
+        );
+        // }}}
+        $this->addHttpResponse($body, $headers);
+
+        $this->queue->delete(
+            '+eXJYhj5rDqRunVNVvjOQKJ0obJP08UNsXdn2v3Lwq+' .
+            'TDtD3hk3aBKbSH1mGc4hzO/VZOIC0RFzLWMLhfKh4qn' .
+            'n3x35CTz9dLTiBp6rMQSSsfakSe+GcTkPfqzNJdCM4P' .
+            'zHuhDaS9mXjcAcCzIRrOX9Mp5AiZxsfiLGqOsqhtH0'
+        );
+    }
+
+    // }}}
+    // {{{ testChangeMessageVisibilityInvalidMessage()
+
+    /**
+     * @group message
+     * @expectedException Services_Amazon_SQS_ErrorException
+     */
+    public function testChangeMessageVisibilityInvalidMessage()
+    {
+        // {{{ response body
+        $body = <<<XML
+<?xml version="1.0"?>
+<ErrorResponse xmlns="http://queue.amazonaws.com/doc/2009-02-01/">
+  <Error>
+    <Type>Sender</Type>
+    <Code>InvalidParameterValue</Code>
+    <Message>Value +eXJYhj5rDqRunVNVvjOQKJ0obJP08UNsXdn2v3Lwq+TDtD3hk3aBKbSH1mGc4hzO/VZOIC0RFzLWMLhfKh4qnn3x35CTz9dLTiBp6rMQSSsfakSe+GcTkPfqzNJdCM4PzHuhDaS9mXjcAcCzIRrOX9Mp5AiZxsfiLGqOsqhtH0 for parameter ReceiptHandle is invalid. Reason: Message does not exist or is not avaliable for visibility timeout change..</Message><Detail/>
+  </Error>
+  <RequestId>1d9c2e47-933e-4896-ab93-86c4df071f7b</RequestId>
+</ErrorResponse>
+XML;
+
+        $body = $this->formatXml($body);
+        // }}}
+        // {{{ response headers
+        $headers = array(
+            'Content-Type'      => 'text/xml',
+            'Transfer-Encoding' => 'chunked',
+            'Date'              => 'Sun, 18 Jan 2009 17:34:20 GMT',
+            'Cneonction'        => 'close', // intentional misspelling
+            'Server'            => 'AWS Simple Queue Service'
+        );
+        // }}}
+        $this->addHttpResponse($body, $headers, 'HTTP/1.1 400 Bad Request');
+
+        $this->queue->changeMessageVisibility(
+            '+eXJYhj5rDqRunVNVvjOQKJ0obJP08UNsXdn2v3Lwq+' .
+            'TDtD3hk3aBKbSH1mGc4hzO/VZOIC0RFzLWMLhfKh4qn' .
+            'n3x35CTz9dLTiBp6rMQSSsfakSe+GcTkPfqzNJdCM4P' .
+            'zHuhDaS9mXjcAcCzIRrOX9Mp5AiZxsfiLGqOsqhtH0',
+            3600
+        );
     }
 
     // }}}
