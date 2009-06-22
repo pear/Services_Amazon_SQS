@@ -54,7 +54,15 @@ if (!defined('PHPUnit_MAIN_METHOD')) {
 require_once 'PHPUnit/Framework/TestSuite.php';
 require_once 'PHPUnit/TextUI/TestRunner.php';
 
-require_once 'TestCase.php';
+require_once dirname(__FILE__) . '/ChangeMessageVisibilityTestCase.php';
+require_once dirname(__FILE__) . '/CreateQueueTestCase.php';
+require_once dirname(__FILE__) . '/DeleteMessageTestCase.php';
+require_once dirname(__FILE__) . '/DeleteQueueTestCase.php';
+require_once dirname(__FILE__) . '/GetAttributesTestCase.php';
+require_once dirname(__FILE__) . '/ListQueuesTestCase.php';
+require_once dirname(__FILE__) . '/ReceiveMessageTestCase.php';
+require_once dirname(__FILE__) . '/SendMessageTestCase.php';
+require_once dirname(__FILE__) . '/SetAttributesTestCase.php';
 
 /**
  * AllTests suite testing Services_Amazon_SQS
@@ -83,7 +91,17 @@ class Services_Amazon_SQS_AllTests
     public static function suite()
     {
         $suite = new PHPUnit_Framework_TestSuite('Services_Amazon_SQS Tests');
-        $suite->addTestSuite('Services_Amazon_SQS_TestCase');
+
+        $suite->addTestSuite('Services_Amazon_SQS_ChangeMessageVisibilityTestCase');
+        $suite->addTestSuite('Services_Amazon_SQS_CreateQueueTestCase');
+        $suite->addTestSuite('Services_Amazon_SQS_DeleteMessageTestCase');
+        $suite->addTestSuite('Services_Amazon_SQS_DeleteQueueTestCase');
+        $suite->addTestSuite('Services_Amazon_SQS_GetAttributesTestCase');
+        $suite->addTestSuite('Services_Amazon_SQS_ListQueuesTestCase');
+        $suite->addTestSuite('Services_Amazon_SQS_ReceiveMessageTestCase');
+        $suite->addTestSuite('Services_Amazon_SQS_SendMessageTestCase');
+        $suite->addTestSuite('Services_Amazon_SQS_SetAttributesTestCase');
+
         return $suite;
     }
 
