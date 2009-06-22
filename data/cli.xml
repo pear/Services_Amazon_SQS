@@ -16,6 +16,12 @@
 		<name>create</name>
 		<add_help_option>no</add_help_option><!-- help is a subcommand -->
 		<description>Creates a new queue with the specified name. The queue may take up to 60 seconds to become available.</description>
+		<option name="timeout">
+			<short_name>-t</short_name>
+			<long_name>--timeout</long_name>
+			<description>The default visibility timeout for the new queue.</description>
+			<action>StoreInt</action>
+		</option>
 		<argument name="queue_name">
 			<description>The name of the queue to create.</description>
 			<help_name>queue-name</help_name>

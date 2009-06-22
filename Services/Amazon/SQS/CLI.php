@@ -199,7 +199,12 @@ class Services_Amazon_SQS_CLI
 
         switch ($result->command_name) {
         case 'create':
-            $this->_createQueue($command->args['queue_name']);
+            if ($command->options['timeout'] === null) {
+                $timeout = 30;
+            } else {
+                $timeout = intval($command->options['timeout']);
+            }
+            $this->_createQueue($command->args['queue_name'], $timeout);
             break;
 
         case 'delete':
@@ -355,23 +360,25 @@ class Services_Amazon_SQS_CLI
     /**
      * Creates a new queue on the SQS
      *
-     * @param string $name the name of the queue to create
+     * @param string  $name    the name of the queue to create.
+     * @param integer $timeout optional. Timeout for message visibility.
      *
      * @return void
      */
-    private function _createQueue($name)
+    private function _createQueue($name, $timeout = 30)
     {
         $manager = $this->_getQueueManager();
 
         try {
-            $result = $manager->createQueue($name);
+            $queue = $manager->createQueue($name, $timeout);
         } catch (Services_Amazon_SQS_Exception $e) {
             $this->_handleException($e);
         }
 
         $this->_display(
-            'New queue has been added. It may take up to 60 seconds for the ' .
-            'new queue to appear in the list of queues.' . PHP_EOL
+            'Queue "' . $queue . '" has been added. It may take up to 60 ' .
+            'seconds for the new queue to appear in the list of queues.' .
+            PHP_EOL
         );
     }
 
