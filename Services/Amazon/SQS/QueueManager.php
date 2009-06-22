@@ -157,14 +157,14 @@ class Services_Amazon_SQS_QueueManager extends Services_Amazon_SQS
         try {
             $response = $this->sendRequest($params);
         } catch (Services_Amazon_SQS_ErrorException $e) {
-            switch ($e->getCode()) {
+            switch ($e->getError()) {
             case 'AWS.SimpleQueueService.QueueDeletedRecently':
                 throw new Services_Amazon_SQS_InvalidQueueException('The ' .
                     'queue "' . $name . '" was deleted recently. Please wait ' .
                     '60 seconds after deleting a queue before creating a ' .
                     'queue of the same name.', 0, $name);
 
-            case 'AWS.SimpleQueueService.QueueNameExists':
+            case 'QueueAlreadyExists':
                 throw new Services_Amazon_SQS_InvalidQueueException('The ' .
                     'queue "' . $name . '" already exists. To set a ' .
                     'different visibility timeout, use the ' .
