@@ -123,7 +123,7 @@ class Services_Amazon_SQS_ErrorException extends Services_Amazon_SQS_Exception
     }
 
     // }}}
-    // {{{ getName()
+    // {{{ getError()
 
     /**
      * Gets the Amazon SQS error code
