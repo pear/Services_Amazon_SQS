@@ -1425,11 +1425,15 @@ XML;
         // {{{ response body
         $body = <<<XML
 <?xml version="1.0"?>
-<DeleteMessageResponse xmlns="http://queue.amazonaws.com/doc/2009-02-01/">
-  <ResponseMetadata>
-    <RequestId>7eb71adb-362b-4ce4-a626-4dcd7ca0dfc2</RequestId>
-  </ResponseMetadata>
-</DeleteMessageResponse>
+<ErrorResponse xmlns="http://queue.amazonaws.com/doc/2009-02-01/">
+  <Error>
+    <Type>Sender</Type>
+    <Code>InvalidParameterValue</Code>
+    <Message>Value 86400 for parameter VisibilityTimeout is invalid. Reason: VisibilityTimeout must be an integer between 0 and 43200.</Message>
+    <Detail/>
+  </Error>
+  <RequestId>7eb71adb-362b-4ce4-a626-4dcd7ca0dfc2</RequestId>
+</ErrorResponse>
 XML;
 
         $body = $this->formatXml($body);
@@ -1439,16 +1443,18 @@ XML;
             'Content-Type'      => 'text/xml',
             'Transfer-Encoding' => 'chunked',
             'Date'              => 'Sun, 18 Jan 2009 17:34:20 GMT',
+            'Cneonction'        => 'close', // intentional misspelling
             'Server'            => 'AWS Simple Queue Service'
         );
         // }}}
-        $this->addHttpResponse($body, $headers);
+        $this->addHttpResponse($body, $headers, 'HTTP/1.1 400 Bad Request');
 
-        $this->queue->delete(
+        $this->queue->changeMessageVisibility(
             '+eXJYhj5rDqRunVNVvjOQKJ0obJP08UNsXdn2v3Lwq+' .
             'TDtD3hk3aBKbSH1mGc4hzO/VZOIC0RFzLWMLhfKh4qn' .
             'n3x35CTz9dLTiBp6rMQSSsfakSe+GcTkPfqzNJdCM4P' .
-            'zHuhDaS9mXjcAcCzIRrOX9Mp5AiZxsfiLGqOsqhtH0'
+            'zHuhDaS9mXjcAcCzIRrOX9Mp5AiZxsfiLGqOsqhtH0',
+            86400
         );
     }
 
