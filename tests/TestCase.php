@@ -101,17 +101,6 @@ class Services_Amazon_SQS_TestCase extends PHPUnit_Framework_TestCase
      */
     protected $queue = null;
 
-    // }}}
-    // {{{ private properties
-
-    /**
-     * @var integer
-     */
-    private $_oldErrorLevel = 0;
-
-    // }}}
-    // {{{ private properties
-
     /**
      * The Amazon Web Services access key id
      *
@@ -129,6 +118,14 @@ class Services_Amazon_SQS_TestCase extends PHPUnit_Framework_TestCase
      * @var string
      */
     protected $secretAccessKey = '';
+
+    // }}}
+    // {{{ private properties
+
+    /**
+     * @var integer
+     */
+    private $_oldErrorLevel = 0;
 
     // }}}
     // {{{ setUp()
