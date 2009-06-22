@@ -485,6 +485,14 @@ XML;
       <Name>ApproximateNumberOfMessages</Name>
       <Value>456</Value>
     </Attribute>
+    <Attribute>
+      <Name>CreatedTimestamp</Name>
+      <Value>1245542635</Value>
+    </Attribute>
+    <Attribute>
+      <Name>LastModifiedTimestamp</Name>
+      <Value>1245542835</Value>
+    </Attribute>
   </GetAttributesResult>
   <ResponseMetadata>
     <RequestId>ac8e1fc5-4fe7-499c-b2ea-a3c183dda6aa</RequestId>
@@ -511,13 +519,120 @@ XML;
             'Returned attributes value is not an array.'
         );
 
-        $this->assertEquals(2, count($attributes));
+        $this->assertEquals(4, count($attributes));
 
         $this->assertArrayHasKey('VisibilityTimeout', $attributes);
         $this->assertEquals(123, $attributes['VisibilityTimeout']);
 
         $this->assertArrayHasKey('ApproximateNumberOfMessages', $attributes);
         $this->assertEquals(456, $attributes['ApproximateNumberOfMessages']);
+
+        $this->assertArrayHasKey('CreatedTimestamp', $attributes);
+        $this->assertEquals(1245542635, $attributes['CreatedTimestamp']);
+
+        $this->assertArrayHasKey('LastModifiedTimestamp', $attributes);
+        $this->assertEquals(1245542835, $attributes['LastModifiedTimestamp']);
+    }
+
+    // }}}
+    // {{{ testGetMultiAttributes()
+
+    /**
+     * @group attributes
+     */
+    public function testGetMultiAttributes()
+    {
+        // {{{ response body
+        $body = <<<XML
+<?xml version="1.0"?>
+<GetAttributesResponse xmlns="http://queue.amazonaws.com/doc/2009-02-01/">
+  <GetAttributesResult>
+    <Attribute>
+      <Name>CreatedTimestamp</Name>
+      <Value>1245542635</Value>
+    </Attribute>
+    <Attribute>
+      <Name>LastModifiedTimestamp</Name>
+      <Value>1245542835</Value>
+    </Attribute>
+  </GetAttributesResult>
+  <ResponseMetadata>
+    <RequestId>ac8e1fc5-4fe7-499c-b2ea-a3c183dda6aa</RequestId>
+  </ResponseMetadata>
+</GetAttributesResponse>
+XML;
+
+        $body = $this->formatXml($body);
+        // }}}
+        // {{{ response headers
+        $headers = array(
+            'Content-Type'      => 'text/xml',
+            'Transfer-Encoding' => 'chunked',
+            'Date'              => 'Sun, 18 Jan 2009 17:34:20 GMT',
+            'Server'            => 'AWS Simple Queue Service'
+        );
+        // }}}
+        $this->addHttpResponse($body, $headers);
+
+        $attributes = $this->queue->getAttributes(
+            array(
+                'CreatedTimestamp',
+                'LastModifiedTimestamp'
+            )
+        );
+
+        $this->assertTrue(
+            is_array($attributes),
+            'Returned attributes value is not an array.'
+        );
+
+        $this->assertEquals(2, count($attributes));
+
+        $this->assertArrayHasKey('CreatedTimestamp', $attributes);
+        $this->assertEquals(1245542635, $attributes['CreatedTimestamp']);
+
+        $this->assertArrayHasKey('LastModifiedTimestamp', $attributes);
+        $this->assertEquals(1245542835, $attributes['LastModifiedTimestamp']);
+    }
+
+    // }}}
+    // {{{ testGetEmptyAttributes()
+
+    /**
+     * @group attributes
+     */
+    public function testGetEmptyAttributes()
+    {
+        // {{{ response body
+        $body = <<<XML
+<?xml version="1.0"?>
+<GetAttributesResponse xmlns="http://queue.amazonaws.com/doc/2009-02-01/">
+  <ResponseMetadata>
+    <RequestId>ac8e1fc5-4fe7-499c-b2ea-a3c183dda6aa</RequestId>
+  </ResponseMetadata>
+</GetAttributesResponse>
+XML;
+
+        $body = $this->formatXml($body);
+        // }}}
+        // {{{ response headers
+        $headers = array(
+            'Content-Type'      => 'text/xml',
+            'Transfer-Encoding' => 'chunked',
+            'Date'              => 'Sun, 18 Jan 2009 17:34:20 GMT',
+            'Server'            => 'AWS Simple Queue Service'
+        );
+        // }}}
+        $this->addHttpResponse($body, $headers);
+
+        $attributes = $this->queue->getAttributes(array());
+
+        $this->assertTrue(
+            is_array($attributes),
+            'Returned attributes value is not an array.'
+        );
+
+        $this->assertEquals(0, count($attributes));
     }
 
     // }}}
@@ -619,6 +734,104 @@ XML;
     }
 
     // }}}
+    // {{{ testGetCreatedTimestampAttribute()
+
+    /**
+     * @group attributes
+     */
+    public function testGetCreatedTimestampAttribute()
+    {
+        // {{{ response body
+        $body = <<<XML
+<?xml version="1.0"?>
+<GetAttributesResponse xmlns="http://queue.amazonaws.com/doc/2009-02-01/">
+  <GetAttributesResult>
+    <Attribute>
+      <Name>CreatedTimestamp</Name>
+      <Value>1245542635</Value>
+    </Attribute>
+  </GetAttributesResult>
+  <ResponseMetadata>
+    <RequestId>ac8e1fc5-4fe7-499c-b2ea-a3c183dda6aa</RequestId>
+  </ResponseMetadata>
+</GetAttributesResponse>
+XML;
+
+        $body = $this->formatXml($body);
+        // }}}
+        // {{{ response headers
+        $headers = array(
+            'Content-Type'      => 'text/xml',
+            'Transfer-Encoding' => 'chunked',
+            'Date'              => 'Sun, 18 Jan 2009 17:34:20 GMT',
+            'Server'            => 'AWS Simple Queue Service'
+        );
+        // }}}
+        $this->addHttpResponse($body, $headers);
+
+        $attributes = $this->queue->getAttributes('CreatedTimestamp');
+
+        $this->assertTrue(
+            is_array($attributes),
+            'Returned attributes value is not an array.'
+        );
+
+        $this->assertEquals(1, count($attributes));
+
+        $this->assertArrayHasKey('CreatedTimestamp', $attributes);
+        $this->assertEquals(1245542635, $attributes['CreatedTimestamp']);
+    }
+
+    // }}}
+    // {{{ testGetLastModifiedTimestampAttribute()
+
+    /**
+     * @group attributes
+     */
+    public function testGetLastModifiedTimestampAttribute()
+    {
+        // {{{ response body
+        $body = <<<XML
+<?xml version="1.0"?>
+<GetAttributesResponse xmlns="http://queue.amazonaws.com/doc/2009-02-01/">
+  <GetAttributesResult>
+    <Attribute>
+      <Name>LastModifiedTimestamp</Name>
+      <Value>1245542635</Value>
+    </Attribute>
+  </GetAttributesResult>
+  <ResponseMetadata>
+    <RequestId>ac8e1fc5-4fe7-499c-b2ea-a3c183dda6aa</RequestId>
+  </ResponseMetadata>
+</GetAttributesResponse>
+XML;
+
+        $body = $this->formatXml($body);
+        // }}}
+        // {{{ response headers
+        $headers = array(
+            'Content-Type'      => 'text/xml',
+            'Transfer-Encoding' => 'chunked',
+            'Date'              => 'Sun, 18 Jan 2009 17:34:20 GMT',
+            'Server'            => 'AWS Simple Queue Service'
+        );
+        // }}}
+        $this->addHttpResponse($body, $headers);
+
+        $attributes = $this->queue->getAttributes('LastModifiedTimestamp');
+
+        $this->assertTrue(
+            is_array($attributes),
+            'Returned attributes value is not an array.'
+        );
+
+        $this->assertEquals(1, count($attributes));
+
+        $this->assertArrayHasKey('LastModifiedTimestamp', $attributes);
+        $this->assertEquals(1245542635, $attributes['LastModifiedTimestamp']);
+    }
+
+    // }}}
     // {{{ testGetInvalidAttribute()
 
     /**
@@ -654,6 +867,49 @@ XML;
         $this->addHttpResponse($body, $headers, 'HTTP/1.1 400 Bad Request');
 
         $response = $this->queue->getAttributes('InvalidAttributeName');
+    }
+
+    // }}}
+    // {{{ testGetMultiInvalidAttribute()
+
+    /**
+     * @group attributes
+     * @expectedException Services_Amazon_SQS_InvalidAttributeException
+     */
+    public function testGetMultiInvalidAttribute()
+    {
+        // {{{ response body
+        $body = <<<XML
+<?xml version="1.0"?>
+<ErrorResponse xmlns="http://queue.amazonaws.com/doc/2009-02-01/">
+  <Error>
+    <Type>Sender</Type>
+    <Code>InvalidAttributeName</Code>
+    <Message>Unknown Attribute InvalidAttributeName</Message>
+    <Detail/>
+  </Error>
+  <RequestId>0dfad892-bcd7-481b-8954-ed6a69245b00</RequestId>
+</ErrorResponse>
+XML;
+
+        $body = $this->formatXml($body);
+        // }}}
+        // {{{ response headers
+        $headers = array(
+            'Transfer-Encoding' => 'chunked',
+            'Date'              => 'Sun, 18 Jan 2009 17:34:20 GMT',
+            'Cneonction'        => 'close', // intentional misspelling
+            'Server'            => 'AWS Simple Queue Service'
+        );
+        // }}}
+        $this->addHttpResponse($body, $headers, 'HTTP/1.1 400 Bad Request');
+
+        $response = $this->queue->getAttributes(
+            array(
+                'CreatedTimestamp',
+                'InvalidAttributeName'
+            )
+        );
     }
 
     // }}}

@@ -406,15 +406,17 @@ class Services_Amazon_SQS_Queue extends Services_Amazon_SQS
      *                                            invisible when retrieved from
      *                                            this queue.
      *
-     * Timestamp values are formatted according to the <kbd>dateTime</kbd>
-     * data-type specified in XML Schema (essentially ISO 8601) and are in UTC.
+     * Timestamp values are formatted as Unix timestamps.
      *
      * Additionally, the special attribute <kbd>All</kbd> may be used to
      * retrieve all available attributes.
      *
-     * @param string $name optional. The name of the attribute value to get or
-     *                     <kbd>All</kbd> to get all available attributes. If
-     *                     not specified, <i><kbd>All</kdb></i> is used.
+     * @param string|array $name optional. The name or names of the attribute
+     *                           values to get or <kbd>All</kbd> to get all
+     *                           available attributes. If not specified,
+     *                           <i><kbd>All</kdb></i> is used. Multiple
+     *                           specific attributes may be retrieved using an
+     *                           array of attribute names.
      *
      * @return array an associative array of available attributes. The attribute
      *               name is the array key and the attribute value is the
@@ -433,10 +435,23 @@ class Services_Amazon_SQS_Queue extends Services_Amazon_SQS
      */
     public function getAttributes($name = 'All')
     {
-        $params = array();
+        $params = array('Action' => 'GetQueueAttributes');
 
-        $params['Action']        = 'GetQueueAttributes';
-        $params['AttributeName'] = $name;
+        if (!is_array($name)) {
+            $name = array($name);
+        }
+
+        $count = count($name);
+
+        if ($count === 1) {
+            $params['AttributeName'] = reset($name);
+        } elseif ($count > 1) {
+            $count = 1;
+            foreach ($name as $attributeName) {
+                $params['AttributeName.' . $count] = $attributeName;
+                $count++;
+            }
+        }
 
         try {
             $response = $this->sendRequest($params, $this->_queueUrl);
