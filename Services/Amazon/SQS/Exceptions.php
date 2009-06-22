@@ -82,7 +82,7 @@ class Services_Amazon_SQS_HttpException extends Services_Amazon_SQS_Exception
  * Exception thrown when one or more errors are returned by Amazon
  *
  * The Amazon error code may be retrived using
- * {@link Services_Amazon_SQS_ErrorException::getCode()} and the error message
+ * {@link Services_Amazon_SQS_ErrorException::getError()} and the error message
  * may bre retrieved using
  * {@link Services_Amazon_SQS_ErrorException::getMessage()}.
  *
