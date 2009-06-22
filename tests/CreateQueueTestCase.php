@@ -165,6 +165,94 @@ XML;
     }
 
     // }}}
+    // {{{ testCreateQueueWithInvalidName()
+
+    /**
+     * @group queue
+     * @expectedException Services_Amazon_SQS_InvalidQueueException
+     */
+    public function testCreateQueueWithInvalidName()
+    {
+        $queue = $this->manager->createQueue('$queue');
+    }
+
+    // }}}
+    // {{{ testCreateQueueWithMoribundName()
+
+    /**
+     * @group queue
+     * @expectedException Services_Amazon_SQS_InvalidQueueException
+     */
+    public function testCreateQueueWithMoribundName()
+    {
+        // {{{ response body
+        $body = <<<XML
+<?xml version="1.0"?>
+<ErrorResponse xmlns="http://queue.amazonaws.com/doc/2009-02-01/">
+  <Error>
+    <Type>Sender</Type>
+    <Code>AWS.SimpleQueueService.QueueDeletedRecently</Code>
+    <Message>You must wait 60 seconds after deleting a queue before you can create another with the same name.</Message>
+    <Detail/>
+  </Error>
+  <RequestId>1a09b0ef-e1ce-4d2a-bf23-bb20624f7e31</RequestId>
+</ErrorResponse>
+XML;
+
+        $body = $this->formatXml($body);
+        // }}}
+        // {{{ response headers
+        $headers = array(
+            'Content-Type'      => 'text/xml',
+            'Transfer-Encoding' => 'chunked',
+            'Date'              => 'Sun, 18 Jan 2009 17:34:20 GMT',
+            'Cneonction'        => 'close',
+            'Server'            => 'AWS Simple Queue Service'
+        );
+        // }}}
+        $this->addHttpResponse($body, $headers, 'HTTP/1.1 400 Bad Request');
+        $queue = $this->manager->createQueue('foo');
+    }
+
+    // }}}
+    // {{{ testCreateQueueWithDuplicateName()
+
+    /**
+     * @group queue
+     * @expectedException Services_Amazon_SQS_InvalidQueueException
+     */
+    public function testCreateQueueWithDuplicateName()
+    {
+        // {{{ response body
+        $body = <<<XML
+<?xml version="1.0"?>
+<ErrorResponse xmlns="http://queue.amazonaws.com/doc/2009-02-01/">
+  <Error>
+    <Type>Sender</Type>
+    <Code>QueueAlreadyExists</Code>
+    <Message>A queue already exists with the same name and a different visibility timeout</Message>
+    <Detail/>
+  </Error>
+  <RequestId>1a09b0ef-e1ce-4d2a-bf23-bb20624f7e31</RequestId>
+</ErrorResponse>
+XML;
+
+        $body = $this->formatXml($body);
+        // }}}
+        // {{{ response headers
+        $headers = array(
+            'Content-Type'      => 'text/xml',
+            'Transfer-Encoding' => 'chunked',
+            'Date'              => 'Sun, 18 Jan 2009 17:34:20 GMT',
+            'Cneonction'        => 'close',
+            'Server'            => 'AWS Simple Queue Service'
+        );
+        // }}}
+        $this->addHttpResponse($body, $headers, 'HTTP/1.1 400 Bad Request');
+        $queue = $this->manager->createQueue('foo');
+    }
+
+    // }}}
 }
 
 ?>
