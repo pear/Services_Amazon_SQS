@@ -67,7 +67,7 @@ require_once dirname(__FILE__) . '/TestCase.php';
  * @link      http://s3.amazonaws.com/awsdocs/SQS/20080101/sqs-dg-20080101.pdf
  */
 class Services_Amazon_SQS_DeleteQueueTestCase extends
-	Services_Amazon_SQS_TestCase
+    Services_Amazon_SQS_TestCase
 {
     // {{{ testDeleteQueue()
 
