@@ -55,6 +55,7 @@ require_once 'PHPUnit/Framework/TestSuite.php';
 require_once 'PHPUnit/TextUI/TestRunner.php';
 
 require_once dirname(__FILE__) . '/ChangeMessageVisibilityTestCase.php';
+require_once dirname(__FILE__) . '/ConstructTestCase.php';
 require_once dirname(__FILE__) . '/CreateQueueTestCase.php';
 require_once dirname(__FILE__) . '/DeleteMessageTestCase.php';
 require_once dirname(__FILE__) . '/DeleteQueueTestCase.php';
@@ -93,6 +94,7 @@ class Services_Amazon_SQS_AllTests
         $suite = new PHPUnit_Framework_TestSuite('Services_Amazon_SQS Tests');
 
         $suite->addTestSuite('Services_Amazon_SQS_ChangeMessageVisibilityTestCase');
+        $suite->addTestSuite('Services_Amazon_SQS_ConstructTestCase');
         $suite->addTestSuite('Services_Amazon_SQS_CreateQueueTestCase');
         $suite->addTestSuite('Services_Amazon_SQS_DeleteMessageTestCase');
         $suite->addTestSuite('Services_Amazon_SQS_DeleteQueueTestCase');
