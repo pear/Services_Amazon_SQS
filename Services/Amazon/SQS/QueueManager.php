@@ -113,7 +113,7 @@ class Services_Amazon_SQS_QueueManager extends Services_Amazon_SQS
      * Creates a new queue for the current account
      *
      * @param string  $name    the queue name.
-     * @param integer $timeout optional. Timeout for message visibility
+     * @param integer $timeout optional. Timeout for message visibility.
      *
      * @return Services_Amazon_SQS_Queue the new queue object or false if the
      *         queue could not be created.
