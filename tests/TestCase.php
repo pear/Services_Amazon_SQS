@@ -102,22 +102,9 @@ abstract class Services_Amazon_SQS_TestCase extends PHPUnit_Framework_TestCase
     protected $queue = null;
 
     /**
-     * The Amazon Web Services access key id
-     *
-     * Value is set during {@link Services_Amazon_SQS_TestCase::setUp()}.
-     *
-     * @var string
+     * @var HTTP_Request2
      */
-    protected $accessKey = '';
-
-    /**
-     * The Amazon Web Services secret access key
-     *
-     * Value is set during {@link Services_Amazon_SQS_TestCase::setUp()}.
-     *
-     * @var string
-     */
-    protected $secretAccessKey = '';
+    protected $request = null;
 
     // }}}
     // {{{ private properties
@@ -136,20 +123,20 @@ abstract class Services_Amazon_SQS_TestCase extends PHPUnit_Framework_TestCase
 
         $this->mock = new HTTP_Request2_Adapter_Mock();
 
-        $request = new HTTP_Request2();
-        $request->setAdapter($this->mock);
+        $this->request = new HTTP_Request2();
+        $this->request->setAdapter($this->mock);
 
         $this->manager = new Services_Amazon_SQS_QueueManager(
             '123456789ABCDEFGHIJK',
             'abcdefghijklmnopqrstuzwxyz/ABCDEFGHIJKLM',
-            $request
+            $this->request
         );
 
         $this->queue = new Services_Amazon_SQS_Queue(
             'http://queue.amazonaws.com/example',
             '123456789ABCDEFGHIJK',
             'abcdefghijklmnopqrstuzwxyz/ABCDEFGHIJKLM',
-            $request
+            $this->request
         );
     }
 
