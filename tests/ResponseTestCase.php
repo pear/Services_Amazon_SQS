@@ -51,7 +51,7 @@ require_once 'PHPUnit/Framework.php';
 require_once dirname(__FILE__) . '/TestCase.php';
 
 /**
- * Response object visibility tests for Services_Amazon_SQS
+ * Response object tests for Services_Amazon_SQS
  *
  * @category  Services
  * @package   Services_Amazon_SQS
