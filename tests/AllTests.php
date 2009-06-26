@@ -62,6 +62,7 @@ require_once dirname(__FILE__) . '/DeleteQueueTestCase.php';
 require_once dirname(__FILE__) . '/GetAttributesTestCase.php';
 require_once dirname(__FILE__) . '/ListQueuesTestCase.php';
 require_once dirname(__FILE__) . '/ReceiveMessageTestCase.php';
+require_once dirname(__FILE__) . '/ResponseTestCase.php';
 require_once dirname(__FILE__) . '/SendMessageTestCase.php';
 require_once dirname(__FILE__) . '/SetAttributesTestCase.php';
 
@@ -100,6 +101,7 @@ class Services_Amazon_SQS_AllTests
         $suite->addTestSuite('Services_Amazon_SQS_DeleteQueueTestCase');
         $suite->addTestSuite('Services_Amazon_SQS_GetAttributesTestCase');
         $suite->addTestSuite('Services_Amazon_SQS_ListQueuesTestCase');
+        $suite->addTestSuite('Services_Amazon_SQS_ResponseTestCase');
         $suite->addTestSuite('Services_Amazon_SQS_ReceiveMessageTestCase');
         $suite->addTestSuite('Services_Amazon_SQS_SendMessageTestCase');
         $suite->addTestSuite('Services_Amazon_SQS_SetAttributesTestCase');
