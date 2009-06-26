@@ -161,6 +161,10 @@ class Services_Amazon_SQS_Response
             $body = false;
         }
 
+        if ($body === '') {
+            $body = false;
+        }
+
         if ($this->_document === null) {
             if ($body !== false) {
                 // turn off libxml error handling
