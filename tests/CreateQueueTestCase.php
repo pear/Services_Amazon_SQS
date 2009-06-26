@@ -253,6 +253,51 @@ XML;
     }
 
     // }}}
+    // {{{ testCreateQueueWithError()
+
+    /**
+     * @group queue
+     * @expectedException Services_Amazon_SQS_ErrorException
+     */
+    public function testCreateQueueWithError()
+    {
+        // {{{ response body
+        $body = <<<XML
+<?xml version="1.0"?>
+<ErrorResponse xmlns="http://queue.amazonaws.com/doc/2009-02-01/">
+  <Error>
+    <Type>Sender</Type>
+    <Code>SignatureDoesNotMatch</Code>
+    <Message>The request signature we calculated does not match the signature you provided. Check your AWS Secret Access Key and signing method. Consult the service documentation for details.</Message>
+    <Detail/>
+  </Error>
+  <RequestId>1a09b0ef-e1ce-4d2a-bf23-bb20624f7e31</RequestId>
+</ErrorResponse>
+XML;
+
+        $body = $this->formatXml($body);
+        // }}}
+        // {{{ response headers
+        $headers = array(
+            'Content-Type'      => 'text/xml',
+            'Transfer-Encoding' => 'chunked',
+            'Date'              => 'Sun, 18 Jan 2009 17:34:20 GMT',
+            'Cneonction'        => 'close',
+            'Server'            => 'AWS Simple Queue Service'
+        );
+        // }}}
+        $this->addHttpResponse($body, $headers, 'HTTP/1.1 403 Forbidden');
+
+        $manager = new Services_Amazon_SQS_QueueManager(
+            '123456789ABCDEFGHIJK',
+            'abcdefghijklmnopqrstuzwxyz/ABCDEFGHIJKLM',
+            $this->request
+        );
+
+        $queue = $manager->createQueue('foo');
+    }
+
+    // }}}
 }
 
 ?>

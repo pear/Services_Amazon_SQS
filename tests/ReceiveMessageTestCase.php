@@ -306,6 +306,98 @@ XML;
     }
 
     // }}}
+    // {{{ testReceiveWithInvalidQueue()
+
+    /**
+     * @group message
+     * @expectedException Services_Amazon_SQS_InvalidQueueException
+     */
+    public function testReceiveWithInvalidQueue()
+    {
+        // {{{ response body
+        $body = <<<XML
+<?xml version="1.0"?>
+<ErrorResponse xmlns="http://queue.amazonaws.com/doc/2009-02-01/">
+  <Error>
+    <Type>Sender</Type>
+    <Code>AWS.SimpleQueueService.NonExistentQueue</Code>
+    <Message>The specified queue does not exist for this wsdl version.</Message>
+    <Detail/>
+  </Error>
+  <RequestId>05714b4b-7359-4527-9bd1-c9aaacb4a2ad</RequestId>
+</ErrorResponse>
+XML;
+
+        $body = $this->formatXml($body);
+        // }}}
+        // {{{ response headers
+        $headers = array(
+            'Content-Type'      => 'text/xml',
+            'Transfer-Encoding' => 'chunked',
+            'Date'              => 'Sun, 18 Jan 2009 17:34:20 GMT',
+            'Cneonction'        => 'close', // Intentional misspelling
+            'Server'            => 'AWS Simple Queue Service'
+        );
+        // }}}
+        $this->addHttpResponse($body, $headers, 'HTTP/1.1 400 Bad Request');
+
+        $queue = new Services_Amazon_SQS_Queue(
+            'http://queue.amazonaws.com/this-queue-does-not-exist',
+            '123456789ABCDEFGHIJK',
+            'abcdefghijklmnopqrstuzwxyz/ABCDEFGHIJKLM',
+            $this->request
+        );
+
+        $queue->receive();
+    }
+
+    // }}}
+    // {{{ testReceiveWithInvalidError()
+
+    /**
+     * @group message
+     * @expectedException Services_Amazon_SQS_ErrorException
+     */
+    public function testReceiveWithError()
+    {
+        // {{{ response body
+        $body = <<<XML
+<?xml version="1.0"?>
+<ErrorResponse xmlns="http://queue.amazonaws.com/doc/2009-02-01/">
+  <Error>
+    <Type>Sender</Type>
+    <Code>SignatureDoesNotMatch</Code>
+    <Message>The request signature we calculated does not match the signature you provided. Check your AWS Secret Access Key and signing method. Consult the service documentation for details.</Message>
+    <Detail/>
+  </Error>
+  <RequestId>1a09b0ef-e1ce-4d2a-bf23-bb20624f7e31</RequestId>
+</ErrorResponse>
+XML;
+
+        $body = $this->formatXml($body);
+        // }}}
+        // {{{ response headers
+        $headers = array(
+            'Content-Type'      => 'text/xml',
+            'Transfer-Encoding' => 'chunked',
+            'Date'              => 'Sun, 18 Jan 2009 17:34:20 GMT',
+            'Cneonction'        => 'close',
+            'Server'            => 'AWS Simple Queue Service'
+        );
+        // }}}
+        $this->addHttpResponse($body, $headers, 'HTTP/1.1 403 Forbidden');
+
+        $queue = new Services_Amazon_SQS_Queue(
+            'http://queue.amazonaws.com/this-queue-does-not-exist',
+            '123456789ABCDEFGHIJK',
+            'abcdefghijklmnopqrstuzwxyz/ABCDEFGHIJKLM',
+            $this->request
+        );
+
+        $queue->receive();
+    }
+
+    // }}}
 }
 
 ?>
