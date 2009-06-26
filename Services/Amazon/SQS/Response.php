@@ -164,7 +164,7 @@ class Services_Amazon_SQS_Response
         if ($this->_document === null) {
             if ($body !== false) {
                 // turn off libxml error handling
-                $errors = libxml_use_internal_errors();
+                $errors = libxml_use_internal_errors(true);
 
                 $this->_document = new DOMDocument();
                 if (!$this->_document->loadXML($body)) {
