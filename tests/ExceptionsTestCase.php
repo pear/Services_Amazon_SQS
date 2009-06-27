@@ -70,11 +70,11 @@ require_once 'Services/Amazon/SQS/Exceptions.php';
 class Services_Amazon_SQS_ExceptionsTestCase extends
     Services_Amazon_SQS_TestCase
 {
-    // http error exception
+    // http exception
     // {{{ testHttpException
 
     /**
-     * @group http-error-exception
+     * @group http-exception
      * @expectedException Services_Amazon_SQS_HttpException test exception
      */
     public function testHttpException()
