@@ -116,7 +116,7 @@ class Services_Amazon_SQS_ErrorException extends Services_Amazon_SQS_Exception
      * @param integer $code    a user-defined error code.
      * @param string  $error   the Amazon SQS error code.
      */
-    public function __construct($message, $code, $error = '')
+    public function __construct($message, $code = 0, $error = '')
     {
         parent::__construct($message, $code);
         $this->_error = $error;
@@ -174,7 +174,7 @@ class Services_Amazon_SQS_InvalidQueueException
      * @param integer $code    a user-defined error code.
      * @param string  $name    the name of the queue that is invalid.
      */
-    public function __construct($message, $code, $name = '')
+    public function __construct($message, $code = 0, $name = '')
     {
         parent::__construct($message, $code);
         $this->_name = $name;
@@ -232,7 +232,7 @@ class Services_Amazon_SQS_InvalidAttributeException
      * @param integer $code    a user-defined error code.
      * @param string  $name    the name of the attribute that is invalid.
      */
-    public function __construct($message, $code, $name = '')
+    public function __construct($message, $code = 0, $name = '')
     {
         parent::__construct($message, $code);
         $this->_name = $name;
@@ -290,7 +290,7 @@ class Services_Amazon_SQS_InvalidTimeoutException
      * @param integer $code    a user-defined error code.
      * @param integer $timeout the invalid timeout value.
      */
-    public function __construct($message, $code, $timeout = 0)
+    public function __construct($message, $code = 0, $timeout = 0)
     {
         parent::__construct($message, $code);
         $this->_timeout = $timeout;
@@ -347,7 +347,7 @@ class Services_Amazon_SQS_InvalidMessageException
      * @param integer $code        a user-defined error code.
      * @param integer $messageBody the invalid message body.
      */
-    public function __construct($message, $code, $messageBody = '')
+    public function __construct($message, $code = 0, $messageBody = '')
     {
         parent::__construct($message, $code);
         $this->_messageBody = $messageBody;
@@ -405,7 +405,7 @@ class Services_Amazon_SQS_ChecksumException
      * @param integer $messageId the id of the message with the checksum
      *                           mismatch.
      */
-    public function __construct($message, $code, $messageId = '')
+    public function __construct($message, $code = 0, $messageId = '')
     {
         parent::__construct($message, $code);
         $this->_messageId = $messageId;
