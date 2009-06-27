@@ -13,13 +13,6 @@
  * This test suite follows the PEAR AllTests conventions as documented at
  * {@link http://cvs.php.net/viewvc.cgi/pear/AllTests.php?view=markup}.
  *
- * Note:
- *
- *   These tests require access keys from Amazon.com. Enter your access keys
- *   in config.php to run these tests. If config.php is missing, these
- *   tests will be skipped. A sample configuration is provided in the file
- *   config.php.dist.
- *
  * LICENSE:
  *
  * Copyright 2008 silverorange
@@ -59,6 +52,7 @@ require_once dirname(__FILE__) . '/ConstructTestCase.php';
 require_once dirname(__FILE__) . '/CreateQueueTestCase.php';
 require_once dirname(__FILE__) . '/DeleteMessageTestCase.php';
 require_once dirname(__FILE__) . '/DeleteQueueTestCase.php';
+require_once dirname(__FILE__) . '/ExceptionsTestCase.php';
 require_once dirname(__FILE__) . '/GetAttributesTestCase.php';
 require_once dirname(__FILE__) . '/ListQueuesTestCase.php';
 require_once dirname(__FILE__) . '/ReceiveMessageTestCase.php';
@@ -99,6 +93,7 @@ class Services_Amazon_SQS_AllTests
         $suite->addTestSuite('Services_Amazon_SQS_CreateQueueTestCase');
         $suite->addTestSuite('Services_Amazon_SQS_DeleteMessageTestCase');
         $suite->addTestSuite('Services_Amazon_SQS_DeleteQueueTestCase');
+        $suite->addTestSuite('Services_Amazon_SQS_ExceptionsTestCase');
         $suite->addTestSuite('Services_Amazon_SQS_GetAttributesTestCase');
         $suite->addTestSuite('Services_Amazon_SQS_ListQueuesTestCase');
         $suite->addTestSuite('Services_Amazon_SQS_ResponseTestCase');
