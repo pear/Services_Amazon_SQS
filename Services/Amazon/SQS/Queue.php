@@ -61,7 +61,7 @@ require_once 'Services/Amazon/SQS.php';
  * @package   Services_Amazon_SQS
  * @author    Mike Brittain <mike@mikebrittain.com>
  * @author    Michael Gauthier <mike@silverorange.com>
- * @copyright 2008 Mike Brittain, 2008 Amazon.com, 2008 silverorange
+ * @copyright 2008 Mike Brittain, 2008 Amazon.com, 2008-2009 silverorange
  * @license   http://www.apache.org/licenses/LICENSE-2.0 Apache License 2.0
  * @link      http://pear.php.net/package/Services_Amazon_SQS
  * @link      http://aws.amazon.com/sqs/
@@ -547,6 +547,128 @@ class Services_Amazon_SQS_Queue extends Services_Amazon_SQS
                     'attribute name "' . $name . '" is not a valid attribute ' .
                     'name.', 0, $name);
 
+            case 'AWS.SimpleQueueService.NonExistentQueue':
+                throw new Services_Amazon_SQS_InvalidQueueException('The ' .
+                    'queue "' . $this . '" does not exist.', 0,
+                    $this->_queueUrl);
+
+            default:
+                throw $e;
+            }
+        }
+    }
+
+    // }}}
+    // {{{ addPermission()
+
+    /**
+     * Adds a permission to this queue for a specific principal
+     *
+     * Permissions that may be granted on this queue are:
+     *
+     * - <kbd>*</kbd> (all permissions)
+     * - <kbd>SendMessage</kbd>
+     * - <kbd>ReceiveMessage</kbd>
+     * - <kbd>DeleteMessage</kbd>
+     * - <kbd>ChangeMessageVisibility</kbd>
+     * - <kbd>GetQueueAttributes</kbd>
+     *
+     * Example use:
+     * <code>
+     * <?php
+     * $queue->addPermission(
+     *     'billing-read-only',
+     *     array(
+     *         array(
+     *             'account'   => '1234567890ab',
+     *             'permission => 'ReceiveMessage'
+     *         ),
+     *         array(
+     *             'account'   => '1234567890ab',
+     *             'permission => 'GetQueueAttributes'
+     *         ),
+     *     )
+     * );
+     * ?>
+     * </code>
+     *
+     * @param string $label      a unique identifier for this permission. This
+     *                           label can be used to revoke the permission at
+     *                           a later date.
+     * @param array  $principals an array of principals receiving the
+     *                           permission. Each array element is a
+     *                           separate array containing the following keys:
+     *                           - <kbd>account</kbd>    - the AWS account which
+     *                                                     will receive the
+     *                                                     permission.
+     *                           - <kbd>permission</kbd> - the permission to
+     *                                                     grant.
+     *
+     * @return void
+     *
+     * @throws InvalidArgumentException if no principals are specified, or if
+     *         the specified principals do not contain the <kbd>account</kbd>
+     *         and <kbd>permission</kbd> fields.
+     *
+     * @throws Services_Amazon_SQS_InvalidPermissionLabelException if the
+     *         specified permission label is not valid.
+     *
+     * @throws Services_Amazon_SQS_InvalidQueueException if this queue does
+     *         not exist for the Amazon SQS account.
+     *
+     * @throws Services_Amazon_SQS_ErrorException if one or more errors are
+     *         returned by Amazon.
+     *
+     * @throws Services_Amazon_SQS_HttpException if the HTTP request fails.
+     */
+    public function addPermission($label, array $principals)
+    {
+/*        if (!$this->isValidPermissionLabel($label)) {
+            throw new Services_Amazon_SQS_InvalidPermissionLabel(
+                'The permission label "' . $label . '" is not a valid ' .
+                'permission label. Permission labels must be 1-80 ' .
+                'characters long and must consist only of alphanumeric ' .
+                'characters, dashes or underscores.',
+                0,
+                $label
+            );
+        }*/
+
+        // validate principals
+        if (count($principals) === 0) {
+            throw new InvalidArgumentException(
+                'At least one principal must be specified.'
+            );
+        }
+        foreach ($principals as $principal) {
+            if (   !is_array($principal)
+                || !array_key_exists('account', $principal)
+                || !array_key_exists('permission', $principal)
+            ) {
+                throw new InvalidArgumentException(
+                    'Each principal must be specified as an associative ' .
+                    'array with the following keys: "account", and ' .
+                    '"permission".'
+                );
+            }
+        }
+
+        $params = array();
+
+        $params['Action'] = 'AddPermission';
+        $params['Label']  = $label;
+
+        $count = 1;
+        foreach ($principals as $principal) {
+            $params['AWSAccountId.' . $count] = $principal['account'];
+            $params['ActionName.' . $count]   = $principal['permission'];
+            $count++;
+        }
+
+        try {
+            $this->sendRequest($params, $this->_queueUrl);
+        } catch (Services_Amazon_SQS_ErrorException $e) {
+            switch ($e->getError()) {
             case 'AWS.SimpleQueueService.NonExistentQueue':
                 throw new Services_Amazon_SQS_InvalidQueueException('The ' .
                     'queue "' . $this . '" does not exist.', 0,

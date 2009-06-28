@@ -260,19 +260,6 @@ abstract class Services_Amazon_SQS
                 $e->getCode());
         }
 
-/*        printf(
-            "HTTP/%s %s %s\n",
-            $httpResponse->getVersion(),
-            $httpResponse->getStatus(),
-            $httpResponse->getReasonPhrase()
-        );
-
-        foreach ($httpResponse->getHeader() as $name => $value) {
-            echo $name, ": ", $value, "\n";
-        }
-
-        echo $httpResponse->getBody();*/
-
         $response = new Services_Amazon_SQS_Response($httpResponse);
 
         $this->_checkForErrors($response);
@@ -385,6 +372,32 @@ abstract class Services_Amazon_SQS
         $valid = true;
 
         if ($timeout < 0 || $timeout > 7200) {
+            $valid = false;
+        }
+
+        return $valid;
+    }
+
+    // }}}
+    // {{{ isValidPermissionLabel()
+
+    /**
+     * Gets whether or not a permission label is valid
+     *
+     * Amazon SQS permission labels must conform to the following rules:
+     * - must be 1 to 80 ASCII characters
+     * - must contain only alphanumeric characters, dashes (-), and
+     *   underscores (_).
+     *
+     * @param string $label the permission label to check.
+     *
+     * @return boolean true if the permission label is valid, otherwise false.
+     */
+    protected function isValidPermissionLabel($label)
+    {
+        $valid = true;
+
+        if (preg_match('/^[A-Za-z0-9\-\_]{1,80}$/', $label) === 0) {
             $valid = false;
         }
 
