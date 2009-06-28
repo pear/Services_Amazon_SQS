@@ -164,19 +164,36 @@ class Services_Amazon_SQS_Queue extends Services_Amazon_SQS
         } catch (Services_Amazon_SQS_ErrorException $e) {
             switch ($e->getError()) {
             case 'InvalidMessageContents':
-                throw new Services_Amazon_SQS_InvalidMessageException('The ' .
-                    'message contains characters outside the allowed set.', 0,
-                    $message);
-
+                throw new Services_Amazon_SQS_InvalidMessageException(
+                    'The message contains characters outside the allowed set.',
+                    0,
+                    $message
+                );
             case 'MessageTooLong':
-                throw new Services_Amazon_SQS_InvalidMessageException('The ' .
-                    'message size can not exceed 8192 bytes.', 0, $message);
+                throw new Services_Amazon_SQS_InvalidMessageException(
+                    'The message size can not exceed 8192 bytes.',
+                    0,
+                    $message
+                );
+            case 'InvalidParameterValue':
+                $tooLongMessage = 'Value for parameter MessageBody is '
+                    . 'invalid. Reason: Message body must be shorter than '
+                    . '8192 bytes.';
 
+                if ($e->getMessage() === $tooLongMessage) {
+                    throw new Services_Amazon_SQS_InvalidMessageException(
+                        'The message size can not exceed 8192 bytes.',
+                        0,
+                        $message
+                    );
+                }
+                throw $e;
             case 'AWS.SimpleQueueService.NonExistentQueue':
-                throw new Services_Amazon_SQS_InvalidQueueException('The ' .
-                    'queue "' . $this . '" does not exist.', 0,
-                    $this->_queueUrl);
-
+                throw new Services_Amazon_SQS_InvalidQueueException(
+                    'The queue "' . $this . '" does not exist.',
+                    0,
+                    $this->_queueUrl
+                );
             default:
                 throw $e;
             }
