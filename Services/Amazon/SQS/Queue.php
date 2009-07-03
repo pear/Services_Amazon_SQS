@@ -580,11 +580,11 @@ class Services_Amazon_SQS_Queue extends Services_Amazon_SQS
      *     'billing-read-only',
      *     array(
      *         array(
-     *             'account'   => '1234567890ab',
+     *             'account'   => '123456789012',
      *             'permission => 'ReceiveMessage'
      *         ),
      *         array(
-     *             'account'   => '1234567890ab',
+     *             'account'   => '123456789012',
      *             'permission => 'GetQueueAttributes'
      *         ),
      *     )
@@ -598,9 +598,12 @@ class Services_Amazon_SQS_Queue extends Services_Amazon_SQS
      * @param array  $principals an array of principals receiving the
      *                           permission. Each array element is a
      *                           separate array containing the following keys:
-     *                           - <kbd>account</kbd>    - the AWS account which
-     *                                                     will receive the
-     *                                                     permission.
+     *                           - <kbd>account</kbd>    - the id of the AWS
+     *                                                     account which will
+     *                                                     receive the
+     *                                                     permission. This is
+     *                                                     <em>not</em> an
+     *                                                     AWS key id.
      *                           - <kbd>permission</kbd> - the permission to
      *                                                     grant.
      *
@@ -658,11 +661,17 @@ class Services_Amazon_SQS_Queue extends Services_Amazon_SQS
         $params['Action'] = 'AddPermission';
         $params['Label']  = $label;
 
-        $count = 1;
-        foreach ($principals as $principal) {
-            $params['AWSAccountId.' . $count] = $principal['account'];
-            $params['ActionName.' . $count]   = $principal['permission'];
-            $count++;
+        if (count($principals) === 1) {
+            $principal = reset($principals);
+            $params['AWSAccountId'] = $principal['account'];
+            $params['ActionName']   = $principal['permission'];
+        } else {
+            $count = 1;
+            foreach ($principals as $principal) {
+                $params['AWSAccountId.' . $count] = $principal['account'];
+                $params['ActionName.' . $count]   = $principal['permission'];
+                $count++;
+            }
         }
 
         try {
