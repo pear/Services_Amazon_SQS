@@ -47,6 +47,7 @@ if (!defined('PHPUnit_MAIN_METHOD')) {
 require_once 'PHPUnit/Framework/TestSuite.php';
 require_once 'PHPUnit/TextUI/TestRunner.php';
 
+require_once dirname(__FILE__) . '/AddPermissionTestCase.php';
 require_once dirname(__FILE__) . '/ChangeMessageVisibilityTestCase.php';
 require_once dirname(__FILE__) . '/ConstructTestCase.php';
 require_once dirname(__FILE__) . '/CreateQueueTestCase.php';
@@ -88,6 +89,7 @@ class Services_Amazon_SQS_AllTests
     {
         $suite = new PHPUnit_Framework_TestSuite('Services_Amazon_SQS Tests');
 
+        $suite->addTestSuite('Services_Amazon_SQS_AddPermissionTestCase');
         $suite->addTestSuite('Services_Amazon_SQS_ChangeMessageVisibilityTestCase');
         $suite->addTestSuite('Services_Amazon_SQS_ConstructTestCase');
         $suite->addTestSuite('Services_Amazon_SQS_CreateQueueTestCase');
