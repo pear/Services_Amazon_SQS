@@ -404,8 +404,8 @@ class Services_Amazon_SQS_Queue extends Services_Amazon_SQS
 
             case 'InvalidParameterValue':
                 $exp = '/^Value .*? for parameter VisibilityTimeout is ' .
-                    'invalid. Reason: VisibilityTimeout must be an integer ' .
-                    'between 0 and 43200.$/';
+                    'invalid\. Reason: VisibilityTimeout must be an integer ' .
+                    'between 0 and 43200\.$/';
 
                 if (preg_match($exp, $e->getMessage()) === 1) {
                    throw new Services_Amazon_SQS_InvalidTimeoutException(
@@ -701,6 +701,23 @@ class Services_Amazon_SQS_Queue extends Services_Amazon_SQS
                 throw new Services_Amazon_SQS_InvalidQueueException('The ' .
                     'queue "' . $this . '" does not exist.', 0,
                     $this->_queueUrl);
+
+            case 'InvalidParameterValue':
+                $exp = '/^Value .*? for parameter Label is invalid\. ' .
+                    'Reason: Already exists\.\.$/';
+
+                if (preg_match($exp, $e->getMessage()) === 1) {
+                    throw new Services_Amazon_SQS_InvalidPermissionLabelException(
+                        'Permission label "' . $label . '" is already used ' .
+                        'for another permission. A different label must be ' .
+                        'used for this permission.',
+                        0,
+                        $label
+                    );
+                }
+
+                throw $e;
+                break;
 
             default:
                 throw $e;
