@@ -626,8 +626,8 @@ class Services_Amazon_SQS_Queue extends Services_Amazon_SQS
      */
     public function addPermission($label, array $principals)
     {
-/*        if (!$this->isValidPermissionLabel($label)) {
-            throw new Services_Amazon_SQS_InvalidPermissionLabel(
+        if (!$this->isValidPermissionLabel($label)) {
+            throw new Services_Amazon_SQS_InvalidPermissionLabelException(
                 'The permission label "' . $label . '" is not a valid ' .
                 'permission label. Permission labels must be 1-80 ' .
                 'characters long and must consist only of alphanumeric ' .
@@ -635,7 +635,7 @@ class Services_Amazon_SQS_Queue extends Services_Amazon_SQS
                 0,
                 $label
             );
-        }*/
+        }
 
         // validate principals
         if (count($principals) === 0) {

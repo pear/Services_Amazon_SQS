@@ -197,6 +197,64 @@ class Services_Amazon_SQS_InvalidQueueException
 }
 
 // }}}
+// {{{ class Services_Amazon_SQS_InvalidPermissionLabelException
+
+/**
+ * Exception thrown when an invalid permission lavel is used in the
+ * Services_Amazon_SQS package
+ *
+ * @category  Services
+ * @package   Services_Amazon_SQS
+ * @author    Michael Gauthier <mike@silverorange.com>
+ * @copyright 2009 silverorange
+ * @license   http://www.apache.org/licenses/LICENSE-2.0 Apache License 2.0
+ * @link      http://pear.php.net/package/Services_Amazon_SQS
+ */
+class Services_Amazon_SQS_InvalidPermissionLabelException
+    extends Services_Amazon_SQS_Exception
+{
+    // {{{ private properties
+
+    /**
+     * The permission label that is invalid
+     *
+     * @var string
+     */
+    private $_label = '';
+
+    // }}}
+    // {{{ __construct()
+
+    /**
+     * Creates a new invalid permission label exception
+     *
+     * @param string  $message an error message.
+     * @param integer $code    a user-defined error code.
+     * @param string  $label   the permission label that is invalid.
+     */
+    public function __construct($message, $code = 0, $label = '')
+    {
+        parent::__construct($message, $code);
+        $this->_label = $label;
+    }
+
+    // }}}
+    // {{{ getLabel()
+
+    /**
+     * Gets the invalid permission label
+     *
+     * @return string the invalid permission label.
+     */
+    public function getLabel()
+    {
+        return $this->_label;
+    }
+
+    // }}}
+}
+
+// }}}
 // {{{ class Services_Amazon_SQS_InvalidAttributeException
 
 /**

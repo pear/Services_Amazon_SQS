@@ -146,6 +146,39 @@ class Services_Amazon_SQS_ExceptionsTestCase extends
 
     // }}}
 
+    // invalid permission label exception
+    // {{{ testInvalidPermissionLabelException
+
+    /**
+     * @group invalid-permission-label-exception
+     * @expectedException Services_Amazon_SQS_InvalidPermissionLabelException test exception
+     */
+    public function testInvalidPermissionLabelException()
+    {
+        throw new Services_Amazon_SQS_InvalidPermissionLabelException(
+            'test exception'
+        );
+    }
+
+    // }}}
+    // {{{ testInvalidPermissionLabelException_getLabel()
+
+    /**
+     * @group invalid-permission-label-exception
+     */
+    public function testInvalidPermissionLabelException_getLabel()
+    {
+        $e = new Services_Amazon_SQS_InvalidPermissionLabelException(
+            'test exception',
+            0,
+            'foo-bar'
+        );
+
+        $this->assertEquals('foo-bar', $e->getLabel());
+    }
+
+    // }}}
+
     // invalid attribute exception
     // {{{ testInvalidAttributeException
 

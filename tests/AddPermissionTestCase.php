@@ -282,6 +282,26 @@ XML;
     }
 
     // }}}
+    // {{{ testAddPermissionWithInvalidPermissionLabel()
+
+    /**
+     * @group permissions
+     * @expectedException Services_Amazon_SQS_InvalidPermissionLabelException
+     */
+    public function testAddPermissionWithInvalidPermissionLabel()
+    {
+        $this->queue->addPermission(
+            '$foo',
+            array(
+                array(
+                    'account'    => '123456789012',
+                    'permission' => 'SendMessage'
+                )
+            )
+        );
+    }
+
+    // }}}
 }
 
 ?>
