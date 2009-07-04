@@ -186,7 +186,7 @@ XML;
 
     /**
      * @group permissions
-     * @expectedException Services_Amazon_SQS_InvalidLabelException
+     * @expectedException Services_Amazon_SQS_InvalidPermissionLabelException
      */
     public function testAddPermissionWithDuplicateLabel()
     {
