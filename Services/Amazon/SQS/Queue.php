@@ -373,6 +373,10 @@ class Services_Amazon_SQS_Queue extends Services_Amazon_SQS
      *
      * @return void
      *
+     * @throws Services_Amazon_SQS_InvalidTimeoutException if the provided
+     *         <kbd>$timeout</kbd> is not in the valid range for the given
+     *         message.
+     *
      * @throws Services_Amazon_SQS_InvalidQueueException if this queue does
      *         not exist for the Amazon SQS account.
      *
@@ -397,6 +401,21 @@ class Services_Amazon_SQS_Queue extends Services_Amazon_SQS
                 throw new Services_Amazon_SQS_InvalidQueueException('The ' .
                     'queue "' . $this . '" does not exist.', 0,
                     $this->_queueUrl);
+
+            case 'InvalidParameterValue':
+                $exp = '/^Value .*? for parameter VisibilityTimeout is ' .
+                    'invalid. Reason: VisibilityTimeout must be an integer ' .
+                    'between 0 and 43200.$/';
+
+                if (preg_match($exp, $e->getMessage()) === 1) {
+                   throw new Services_Amazon_SQS_InvalidTimeoutException(
+                        'The timeout "' . $timeout . '" is not valid for ' .
+                        'the specified message.',
+                        0,
+                        $timeout
+                    );
+                }
+                throw $e;
 
             default:
                 throw $e;
