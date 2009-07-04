@@ -637,7 +637,7 @@ class Services_Amazon_SQS_CLI
     /**
      * Displays a message on STDOUT
      *
-     * @param string   $text   the text to display.
+     * @param string $text the text to display.
      *
      * @return void
      */
@@ -653,11 +653,11 @@ class Services_Amazon_SQS_CLI
      * Displays an error message on STDERR and optionally terminates the
      * application
      *
-     * @param string  $text the error message to display.
-     * @param integer $code optional. The exit code to use when exiting on
-     *                      an error. Defaults to 1.
-     * @param boolean $exit optional. Whether or not to exit after displaying
-     *                      the error message. Defaults to true.
+     * @param string  $string the error message to display.
+     * @param integer $code   optional. The exit code to use when exiting on
+     *                        an error. Defaults to 1.
+     * @param boolean $exit   optional. Whether or not to exit after displaying
+     *                        the error message. Defaults to true.
      *
      * @return void
      */
