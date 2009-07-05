@@ -302,6 +302,56 @@ XML;
     }
 
     // }}}
+    // {{{ testAddPermissionWithUnknownError()
+
+    /**
+     * @group permissions
+     * @expectedException Services_Amazon_SQS_ErrorException
+     */
+    public function testAddPermissionWithUnknownError()
+    {
+        // {{{ response body
+        $body = <<<XML
+<?xml version="1.0"?>
+<ErrorResponse xmlns="http://queue.amazonaws.com/doc/2009-02-01/">
+  <Error>
+    <Type>Receiver</Type>
+    <Code>InternalError</Code>
+    <Message>We encountered an internal error. Please try again.</Message>
+    <Detail/>
+  </Error>
+  <RequestId>d22acfe7-a4c3-4ab4-b0f3-3fbc20b97c1d</RequestId>
+</ErrorResponse>
+XML;
+
+        $body = $this->formatXml($body);
+        // }}}
+        // {{{ response headers
+        $headers = array(
+            'Transfer-Encoding' => 'chunked',
+            'Date'              => 'Sun, 18 Jan 2009 17:34:20 GMT',
+            'Cneonction'        => 'close', // Intentional misspelling
+            'Server'            => 'AWS Simple Queue Service'
+        );
+        // }}}
+        $this->addHttpResponse(
+            $body,
+            $headers,
+            'HTTP/1.1 500 Internal Server Error'
+        );
+
+        $this->queue->addPermission(
+            'test-label',
+            array(
+                array(
+                    'account'    => '123456789012',
+                    'permission' => 'ReceiveMessage'
+                )
+            )
+        );
+    }
+
+    // }}}
 }
 
 ?>

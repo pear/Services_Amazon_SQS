@@ -235,7 +235,7 @@ XML;
         // {{{ response body
         $body = <<<XML
 <?xml version="1.0"?>
-<ErrorResponse xmlns=" http://queue.amazonaws.com/doc/2009-02-01/">
+<ErrorResponse xmlns="http://queue.amazonaws.com/doc/2009-02-01/">
   <Error>
     <Type>Receiver</Type>
     <Code>InternalError</Code>
