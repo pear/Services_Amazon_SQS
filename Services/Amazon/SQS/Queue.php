@@ -429,6 +429,7 @@ class Services_Amazon_SQS_Queue extends Services_Amazon_SQS
                         $timeout
                     );
                 }
+
                 throw $e;
 
             default:
@@ -733,7 +734,6 @@ class Services_Amazon_SQS_Queue extends Services_Amazon_SQS
                 }
 
                 throw $e;
-                break;
 
             default:
                 throw $e;
@@ -801,8 +801,19 @@ class Services_Amazon_SQS_Queue extends Services_Amazon_SQS
                     $this->_queueUrl);
 
             case 'InvalidParameterValue':
+                $exp = '/^Value .*? for parameter Label is invalid\. ' .
+                    'Reason: Does not exist\.\.$/';
+
+                if (preg_match($exp, $e->getMessage()) === 1) {
+                    throw new Services_Amazon_SQS_InvalidPermissionLabelException(
+                        'Permission label "' . $label . '" does not exist ' .
+                        'for this queue and cannot be removed.',
+                        0,
+                        $label
+                    );
+                }
+
                 throw $e;
-                break;
 
             default:
                 throw $e;
