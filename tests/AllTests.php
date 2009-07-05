@@ -79,6 +79,14 @@ class Services_Amazon_SQS_AllTests
 
     public static function main()
     {
+        PHPUnit_Util_Filter::addDirectoryToWhitelist(
+            dirname(__FILE__) . '/../Services/Amazon/SQS'
+        );
+
+        PHPUnit_Util_Filter::addFileToWhitelist(
+            dirname(__FILE__) . '/../Services/Amazon/SQS.php'
+        );
+
         PHPUnit_TextUI_TestRunner::run(self::suite());
     }
 
