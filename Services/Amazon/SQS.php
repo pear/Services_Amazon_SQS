@@ -534,7 +534,7 @@ abstract class Services_Amazon_SQS
     // {{{ _checkForErrors()
 
     /**
-     * Checks for errors responses from Amazon
+     * Checks for error responses from Amazon
      *
      * @param Services_Amazon_SQS_Response $response the response object to
      *                                               check.
