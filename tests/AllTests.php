@@ -57,6 +57,7 @@ require_once dirname(__FILE__) . '/ExceptionsTestCase.php';
 require_once dirname(__FILE__) . '/GetAttributesTestCase.php';
 require_once dirname(__FILE__) . '/ListQueuesTestCase.php';
 require_once dirname(__FILE__) . '/ReceiveMessageTestCase.php';
+require_once dirname(__FILE__) . '/RemovePermissionTestCase.php';
 require_once dirname(__FILE__) . '/ResponseTestCase.php';
 require_once dirname(__FILE__) . '/SendMessageTestCase.php';
 require_once dirname(__FILE__) . '/SetAttributesTestCase.php';
@@ -67,7 +68,7 @@ require_once dirname(__FILE__) . '/SetAttributesTestCase.php';
  * @category  Services
  * @package   Services_Amazon_SQS
  * @author    Michael Gauthier <mike@silverorange.com>
- * @copyright 2008 silverorange
+ * @copyright 2008-2009 silverorange
  * @license   http://www.apache.org/licenses/LICENSE-2.0 Apache License 2.0
  * @link      http://pear.php.net/package/Services_Amazon_SQS
  * @link      http://aws.amazon.com/sqs/
@@ -106,8 +107,9 @@ class Services_Amazon_SQS_AllTests
         $suite->addTestSuite('Services_Amazon_SQS_ExceptionsTestCase');
         $suite->addTestSuite('Services_Amazon_SQS_GetAttributesTestCase');
         $suite->addTestSuite('Services_Amazon_SQS_ListQueuesTestCase');
-        $suite->addTestSuite('Services_Amazon_SQS_ResponseTestCase');
         $suite->addTestSuite('Services_Amazon_SQS_ReceiveMessageTestCase');
+        $suite->addTestSuite('Services_Amazon_SQS_RemovePermissionTestCase');
+        $suite->addTestSuite('Services_Amazon_SQS_ResponseTestCase');
         $suite->addTestSuite('Services_Amazon_SQS_SendMessageTestCase');
         $suite->addTestSuite('Services_Amazon_SQS_SetAttributesTestCase');
 
