@@ -368,6 +368,20 @@ class Services_Amazon_SQS_Queue extends Services_Amazon_SQS
      * message can not have a total visibility timeout period exceeding 12
      * hours.
      *
+     * Example usage:
+     * <code>
+     * <?php
+     * // receive a message with a 10 second visibility timeout
+     * $message = $queue->receive(1, 10);
+     * // check if processing the message will take longer than ten seconds
+     * if ($message['body'] == 'this will take a long time') {
+     *    // if so, add five minutes to the visibility timeout
+     *    $queue->changeMessageVisibility($message['handle'], 300);
+     * }
+     * // now process the message
+     * ?>
+     * </code>
+     *
      * @param string  $handle  the receipt handle of the message to update.
      * @param integer $timeout the new visibility timeout for the message.
      *
@@ -642,6 +656,8 @@ class Services_Amazon_SQS_Queue extends Services_Amazon_SQS
      *         returned by Amazon.
      *
      * @throws Services_Amazon_SQS_HttpException if the HTTP request fails.
+     *
+     * @see Services_Amazon_SQS_Queue::removePermission()
      */
     public function addPermission($label, array $principals)
     {
@@ -716,6 +732,75 @@ class Services_Amazon_SQS_Queue extends Services_Amazon_SQS
                     );
                 }
 
+                throw $e;
+                break;
+
+            default:
+                throw $e;
+            }
+        }
+    }
+
+    // }}}
+    // {{{ removePermission()
+
+    /**
+     * Removes a permission from this queue by the permission's label
+     *
+     * Example use:
+     * <code>
+     * <?php
+     * $queue->removePermission('billing-read-only');
+     * ?>
+     * </code>
+     *
+     * @param string $label the unique identifier of the permission to remove.
+     *                      This should be the same label used when the
+     *                      permission was added.
+     *
+     * @return void
+     *
+     * @throws Services_Amazon_SQS_InvalidPermissionLabelException if the
+     *         specified permission label is not valid.
+     *
+     * @throws Services_Amazon_SQS_InvalidQueueException if this queue does
+     *         not exist for the Amazon SQS account.
+     *
+     * @throws Services_Amazon_SQS_ErrorException if one or more errors are
+     *         returned by Amazon.
+     *
+     * @throws Services_Amazon_SQS_HttpException if the HTTP request fails.
+     *
+     * @see Services_Amazon_SQS_Queue::addPermission()
+     */
+    public function removePermission($label)
+    {
+        if (!$this->isValidPermissionLabel($label)) {
+            throw new Services_Amazon_SQS_InvalidPermissionLabelException(
+                'The permission label "' . $label . '" is not a valid ' .
+                'permission label. Permission labels must be 1-80 ' .
+                'characters long and must consist only of alphanumeric ' .
+                'characters, dashes or underscores.',
+                0,
+                $label
+            );
+        }
+
+        $params = array();
+
+        $params['Action'] = 'RemovePermission';
+        $params['Label']  = $label;
+
+        try {
+            $this->sendRequest($params, $this->_queueUrl);
+        } catch (Services_Amazon_SQS_ErrorException $e) {
+            switch ($e->getError()) {
+            case 'AWS.SimpleQueueService.NonExistentQueue':
+                throw new Services_Amazon_SQS_InvalidQueueException('The ' .
+                    'queue "' . $this . '" does not exist.', 0,
+                    $this->_queueUrl);
+
+            case 'InvalidParameterValue':
                 throw $e;
                 break;
 
