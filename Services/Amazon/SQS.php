@@ -253,6 +253,9 @@ abstract class Services_Amazon_SQS
 
             $httpResponse = $request->send();
 
+            // make sure the request object gets dereferenced
+            unset($request);
+
         } catch (HTTP_Request2_Exception $e) {
             // throw an exception if there was an HTTP error
             $message = 'Error in request to AWS service: ' . $e->getMessage();
