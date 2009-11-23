@@ -135,8 +135,20 @@ abstract class Services_Amazon_SQS
      * subsequent API calls.
      *
      * @var HTTP_Request2
+     *
+     * @see Services_Amazon_SQS::setRequest()
      */
     protected $request = null;
+
+    /**
+     * The maximum number of retries to make when encountering internal errors
+     * on SQS
+     *
+     * @var integer
+     *
+     * @see Services_Amazon_SQS::setMaximumRetries()
+     */
+    protected $maximumRetries = 10;
 
     // }}}
     // {{{ __construct()
@@ -195,6 +207,31 @@ abstract class Services_Amazon_SQS
     public function setRequest(HTTP_Request2 $request)
     {
         $this->request = $request;
+    }
+
+    // }}}
+    // {{{ setMaximumRetries()
+
+    /**
+     * Sets the maximum number of retries to make when encountering internal
+     * errors on SQS
+     *
+     * Internal errors are handled using an exponential backoff algorithm so
+     * take care not to set this number too high. For example, a request
+     * requiring 20 retries will take approximately 17 minutes and 30 seconds
+     * to complete. Any number less than 10 is generally acceptable, incurring
+     * a maximum delay of just over 1 second.
+     *
+     * The default value for Services_Amazon_SQS is 10 retries.
+     *
+     * @param integer $retries the maximum number of retries to make when
+     *                         encountering internal errors on SQS.
+     *
+     * @return void
+     */
+    public function setMaximumRetries($retries)
+    {
+        $this->maximumRetries = intval($retries);
     }
 
     // }}}
