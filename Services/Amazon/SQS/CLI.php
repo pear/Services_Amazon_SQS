@@ -330,13 +330,14 @@ class Services_Amazon_SQS_CLI
                 $rows[] = $row;
             }
 
-            $format = '%-55s  %-10s  %-10s' . PHP_EOL;
+            $format = '%-67s %-7s %-4s' . PHP_EOL;
 
             // display headers
             if ($showHeaders) {
-                $this->_display(sprintf($format, '', 'ITEMS', 'VIS.'));
+                $headerFormat = '%-62s %-9s %-6s' . PHP_EOL;
+                $this->_display(sprintf($headerFormat, '', 'ITEMS', 'VIS.'));
                 $this->_display(
-                    sprintf($format, 'QUEUE NAME', '(APPROX.)', 'TIMEOUT')
+                    sprintf($headerFormat, 'QUEUE NAME', '(APPROX.)', 'TIMEOUT')
                 );
             }
 
