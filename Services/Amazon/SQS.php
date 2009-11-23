@@ -222,7 +222,8 @@ abstract class Services_Amazon_SQS
      * to complete. Any number less than 10 is generally acceptable, incurring
      * a maximum delay of just over 1 second.
      *
-     * The default value for Services_Amazon_SQS is 10 retries.
+     * The default value for Services_Amazon_SQS is 10 retries. Set to 0 to
+     * turn off exponential backoff altogether.
      *
      * @param integer $retries the maximum number of retries to make when
      *                         encountering internal errors on SQS.
@@ -288,7 +289,23 @@ abstract class Services_Amazon_SQS
             $request->setHeader('User-Agent', $this->_getUserAgent());
             $request->addPostParameter($params);
 
-            $httpResponse = $request->send();
+            $count = 0;
+            while ($count < $this->maximumRetries) {
+                // exponential backoff delay
+                usleep($this->getRequestBackoffTime($count) * 1000);
+
+                // send request
+                $httpResponse = $request->send();
+
+                // check for internal errors
+                if (!$this->_hasInternalError($httpResponse)) {
+                    // no errors, continue processing the response
+                    break;
+                }
+
+                // increment count for next request retry
+                $count++;
+            }
 
             // make sure the request object gets dereferenced
             unset($request);
@@ -445,6 +462,25 @@ abstract class Services_Amazon_SQS
     }
 
     // }}}
+    // {{{ getRequestBackoffTime()
+
+    /**
+     * Gets the number of milliseconds to wait before the next reqeust when
+     * performing exponential backoff
+     *
+     * Exponential backoff is used when SQS encounters internal errors.
+     *
+     * @param integer $count the number of the current attempt. Zero based.
+     *
+     * @return integer the number of milliseconds to delay before the next
+     *                 request is attempted.
+     */
+    protected function getRequestBackoffTime($count)
+    {
+        return intval(pow(2, $count) - 1);
+    }
+
+    // }}}
     // {{{ _getStringToSign()
 
     /**
@@ -568,6 +604,21 @@ abstract class Services_Amazon_SQS
     private function _getUserAgent()
     {
         return '@name@/@api-version@';
+    }
+
+    // }}}
+    // {{{ _hasInternalError()
+
+    /**
+     * Checks for internal error responses from Amazon
+     *
+     * @param HTTP_Request2_Response $response the response object to check.
+     *
+     * @return boolean true if an internal error is detected, otherwise false.
+     */
+    private function _hasInternalError(HTTP_Request2_Response $response)
+    {
+        return ($response->getStatus() >= 500 && $response->getStatus() < 600);
     }
 
     // }}}
