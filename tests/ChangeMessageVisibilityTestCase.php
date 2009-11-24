@@ -283,6 +283,8 @@ XML;
             'HTTP/1.1 500 Internal Server Error'
         );
 
+        $this->queue->setMaximumRetries(1);
+
         $this->queue->changeMessageVisibility(
             '+eXJYhj5rDqRunVNVvjOQKJ0obJP08UNsXdn2v3Lwq+' .
             'TDtD3hk3aBKbSH1mGc4hzO/VZOIC0RFzLWMLhfKh4qn' .
