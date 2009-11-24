@@ -34,21 +34,19 @@
 require_once 'PEAR/PackageFileManager2.php';
 PEAR::setErrorHandling(PEAR_ERROR_DIE);
 
-$api_version     = '0.2.0';
+$api_version     = '0.3.0';
 $api_state       = 'beta';
 
-$release_version = '0.2.0';
+$release_version = '0.3.0';
 $release_state   = 'beta';
 $release_notes   =
-    "Second PEAR release\n" .
-    " * Implemented Req #15431. Added send and receive commands to the " .
-    "command-line interface\n" .
-    " * Implemented Req #15451. Use mock-http requests in unit tests\n" .
-    " * Increased test coverage\n" .
-    " * Implemented Req #15430. Use Console_CommandLine for command-line " .
-    "interface\n" .
-    " * Implemented Req #15432. Use Amazon Signature Version 2. See " .
-    "http://developer.amazonwebservices.com/connect/entry.jspa?externalID=1928";
+    " * Upgrade to the SQS API version 2009-02-01.\n" .
+    " * Support new SQS features. Request #16085.\n" .
+    " * Better unit tests.\n" .
+    " * End user documentation on the PEAR website.\n" .
+    " * Depend on Console_CommandLine for the CLI utility.\n" .
+    " * Handle internal errors automatically. Request #16824.\n";
+    "interface\n";
 
 $description =
     "This package provides an object-oriented interface to the Amazon Simple " .
