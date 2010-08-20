@@ -11,7 +11,7 @@
  * for detailed installation instructions.
  *
  * This test suite follows the PEAR AllTests conventions as documented at
- * {@link http://cvs.php.net/viewvc.cgi/pear/AllTests.php?view=markup}.
+ * {@link http://svn.php.net/viewvc/pear/packages/AllTests.php?view=markup}.
  *
  * LICENSE:
  *
