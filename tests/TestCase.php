@@ -15,7 +15,7 @@
  *
  * LICENSE:
  *
- * Copyright 2008 Mike Brittain, 2008-2009 silverorange
+ * Copyright 2008 Mike Brittain, 2008-2011 silverorange
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,7 +34,7 @@
  * @author    Mike Brittain <mike@mikebrittain.com>
  * @author    Michael Gauthier <mike@silverorange.com>
  * @copyright 2008 Mike Brittain
- * @copyright 2008-2009 silverorange
+ * @copyright 2008-2011 silverorange
  * @license   http://www.apache.org/licenses/LICENSE-2.0 Apache License 2.0
  * @version   CVS: $Id$
  * @link      http://pear.php.net/package/Services_Amazon_SQS
@@ -107,20 +107,10 @@ abstract class Services_Amazon_SQS_TestCase extends PHPUnit_Framework_TestCase
     protected $request = null;
 
     // }}}
-    // {{{ private properties
-
-    /**
-     * @var integer
-     */
-    private $_oldErrorLevel = 0;
-
-    // }}}
     // {{{ setUp()
 
     public function setUp()
     {
-        $this->_oldErrorLevel = error_reporting(E_ALL | E_STRICT);
-
         $this->mock = new HTTP_Request2_Adapter_Mock();
 
         $this->request = new HTTP_Request2();
@@ -148,9 +138,6 @@ abstract class Services_Amazon_SQS_TestCase extends PHPUnit_Framework_TestCase
         unset($this->manager);
         unset($this->queue);
         unset($this->mock);
-
-        // restore error handling
-        error_reporting($this->_oldErrorLevel);
     }
 
     // }}}
