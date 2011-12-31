@@ -70,7 +70,8 @@ class Services_Amazon_SQS_ExceptionsTestCase extends
 
     /**
      * @group http-exception
-     * @expectedException Services_Amazon_SQS_HttpException test exception
+     * @expectedException Services_Amazon_SQS_HttpException
+     * @expectedExceptionMessage test exception
      */
     public function testHttpException()
     {
@@ -84,7 +85,8 @@ class Services_Amazon_SQS_ExceptionsTestCase extends
 
     /**
      * @group error-exception
-     * @expectedException Services_Amazon_SQS_ErrorException test exception
+     * @expectedException Services_Amazon_SQS_ErrorException
+     * @expectedExceptionMessage test exception
      */
     public function testErrorException()
     {
@@ -115,7 +117,8 @@ class Services_Amazon_SQS_ExceptionsTestCase extends
 
     /**
      * @group invalid-queue-exception
-     * @expectedException Services_Amazon_SQS_InvalidQueueException test exception
+     * @expectedException Services_Amazon_SQS_InvalidQueueException
+     * @expectedExceptionMessage test exception
      */
     public function testInvalidQueueException()
     {
@@ -146,7 +149,8 @@ class Services_Amazon_SQS_ExceptionsTestCase extends
 
     /**
      * @group invalid-permission-label-exception
-     * @expectedException Services_Amazon_SQS_InvalidPermissionLabelException test exception
+     * @expectedException Services_Amazon_SQS_InvalidPermissionLabelException
+     * @expectedExceptionMessage test exception
      */
     public function testInvalidPermissionLabelException()
     {
@@ -179,7 +183,8 @@ class Services_Amazon_SQS_ExceptionsTestCase extends
 
     /**
      * @group invalid-attribute-exception
-     * @expectedException Services_Amazon_SQS_InvalidAttributeException test exception
+     * @expectedException Services_Amazon_SQS_InvalidAttributeException
+     * @expectedExceptionMessage test exception
      */
     public function testInvalidAttributeException()
     {
@@ -212,7 +217,8 @@ class Services_Amazon_SQS_ExceptionsTestCase extends
 
     /**
      * @group invalid-timeout-exception
-     * @expectedException Services_Amazon_SQS_InvalidTimeoutException test exception
+     * @expectedException Services_Amazon_SQS_InvalidTimeoutException
+     * @expectedExceptionMessage test exception
      */
     public function testInvalidTimeoutException()
     {
@@ -245,7 +251,8 @@ class Services_Amazon_SQS_ExceptionsTestCase extends
 
     /**
      * @group invalid-message-exception
-     * @expectedException Services_Amazon_SQS_InvalidMessageException test exception
+     * @expectedException Services_Amazon_SQS_InvalidMessageException
+     * @expectedExceptionMessage test exception
      */
     public function testInvalidMessageException()
     {
@@ -278,7 +285,8 @@ class Services_Amazon_SQS_ExceptionsTestCase extends
 
     /**
      * @group checksum-exception
-     * @expectedException Services_Amazon_SQS_ChecksumException test exception
+     * @expectedException Services_Amazon_SQS_ChecksumException
+     * @expectedExceptionMessage test exception
      */
     public function testChecksumException()
     {

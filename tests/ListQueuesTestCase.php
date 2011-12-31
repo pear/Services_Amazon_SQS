@@ -111,7 +111,7 @@ XML;
         );
 
         foreach ($queues as $key => $queue) {
-            $this->assertType('Services_Amazon_SQS_Queue', $queue);
+            $this->assertInstanceOf('Services_Amazon_SQS_Queue', $queue);
             $this->assertEquals($expectedQueueUrls[$key], strval($queue));
         }
     }
@@ -160,7 +160,7 @@ XML;
         );
 
         foreach ($queues as $key => $queue) {
-            $this->assertType('Services_Amazon_SQS_Queue', $queue);
+            $this->assertInstanceOf('Services_Amazon_SQS_Queue', $queue);
             $this->assertEquals($expectedQueueUrls[$key], strval($queue));
         }
     }

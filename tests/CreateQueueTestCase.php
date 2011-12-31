@@ -98,7 +98,7 @@ XML;
 
         $queue = $this->manager->createQueue('example');
 
-        $this->assertType('Services_Amazon_SQS_Queue', $queue);
+        $this->assertInstanceOf('Services_Amazon_SQS_Queue', $queue);
         $this->assertEquals(
             'http://queue.amazonaws.com/example',
             strval($queue)
@@ -140,7 +140,7 @@ XML;
 
         $queue = $this->manager->createQueue('example', 500);
 
-        $this->assertType('Services_Amazon_SQS_Queue', $queue);
+        $this->assertInstanceOf('Services_Amazon_SQS_Queue', $queue);
         $this->assertEquals(
             'http://queue.amazonaws.com/example',
             strval($queue)
