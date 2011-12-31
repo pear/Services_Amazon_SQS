@@ -513,7 +513,7 @@ class Services_Amazon_SQS_Queue extends Services_Amazon_SQS
                 // message since we could have used an array of attribute
                 // names.
                 $exp = '/^Unknown Attribute (.*)$/';
-                $matches = array()
+                $matches = array();
                 if (preg_match($exp, $e->getMessage(), $matches) === 1) {
                     throw new Services_Amazon_SQS_InvalidAttributeException(
                         'The attribute name "' . $matches[1] . '" is not a ' .
