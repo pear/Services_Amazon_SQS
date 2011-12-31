@@ -5,9 +5,9 @@
 /**
  * Abstract base class for tests for the Services_Amazon_SQS package.
  *
- * These tests require the PHPUnit3 package to be installed. PHPUnit is
- * installable using PEAR. See the
- * {@link http://www.phpunit.de/pocket_guide/3.3/en/installation.html manual}
+ * These tests require the PHPUnit 3.6 or greater package to be installed.
+ * PHPUnit is installable using PEAR. See the
+ * {@link http://www.phpunit.de/manual/3.6/en/installation.html manual}
  * for detailed installation instructions.
  *
  * This test suite follows the PEAR AllTests conventions as documented at
@@ -43,11 +43,6 @@
  */
 
 /**
- * PHPUnit3 framework
- */
-require_once 'PHPUnit/Framework.php';
-
-/**
  * Queue manager class to test
  */
 require_once 'Services/Amazon/SQS/QueueManager.php';
@@ -74,7 +69,7 @@ require_once 'HTTP/Request2/Adapter/Mock.php';
  * @author    Mike Brittain <mike@mikebrittain.com>
  * @author    Michael Gauthier <mike@silverorange.com>
  * @copyright 2008 Mike Brittain
- * @copyright 2008-2009 silverorange
+ * @copyright 2008-2011 silverorange
  * @license   http://www.apache.org/licenses/LICENSE-2.0 Apache License 2.0
  * @link      http://pear.php.net/package/Services_Amazon_SQS
  * @link      http://aws.amazon.com/sqs/
