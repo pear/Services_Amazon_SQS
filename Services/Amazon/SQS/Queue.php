@@ -509,9 +509,23 @@ class Services_Amazon_SQS_Queue extends Services_Amazon_SQS
         } catch (Services_Amazon_SQS_ErrorException $e) {
             switch ($e->getError()) {
             case 'InvalidAttributeName':
-                throw new Services_Amazon_SQS_InvalidAttributeException('The ' .
-                    'attribute name "' . $name . '" is not a valid attribute ' .
-                    'name.', 0, $name);
+                // pull the invalid attribute name from the Amazon error
+                // message since we could have used an array of attribute
+                // names.
+                $exp = '/^Unknown Attribute (.*)$/';
+                $matches = array()
+                if (preg_match($exp, $e->getMessage(), $matches) === 1) {
+                    throw new Services_Amazon_SQS_InvalidAttributeException(
+                        'The attribute name "' . $matches[1] . '" is not a ' .
+                        'valid attribute name.',
+                        0,
+                        $name
+                    );
+                } else {
+                    throw new Services_Amazon_SQS_InvalidAttributeException(
+                        'Invalid attribute name.'
+                    );
+                }
 
             case 'AWS.SimpleQueueService.NonExistentQueue':
                 throw new Services_Amazon_SQS_InvalidQueueException('The ' .
