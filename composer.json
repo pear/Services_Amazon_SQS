@@ -1,0 +1,36 @@
+{
+    "authors": [
+        {
+            "email": "mike@silverorange.com",
+            "name": "Mike Gauthier",
+            "role": "Lead"
+        },
+        {
+            "email": "mike@mikebrittain.com",
+            "name": "Mike Brittain",
+            "role": "Lead"
+        }
+    ],
+    "autoload": {
+        "psr-0": {
+            "Services_Amazon_SQS": "./"
+        }
+    },
+    "description": "More info available on: http://pear.php.net/package/Services_Amazon_SQS",
+    "include-path": [
+        "./"
+    ],
+    "license": "Apache License 2.0",
+    "name": "pear/services_amazon_sqs",
+    "support": {
+        "issues": "http://pear.php.net/bugs/search.php?cmd=display&package_name[]=Services_Amazon_SQS",
+        "source": "https://github.com/pear/Services_Amazon_SQS"
+    },
+    "type": "library",
+    "require": {
+        "pear/pear_exception": "*"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "*"
+    }
+}
